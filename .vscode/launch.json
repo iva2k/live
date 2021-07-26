@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "runtimeArgs": ["--load-extension=${env:userprofile}/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.14.0_0,${env:userprofile}/AppData/Local/Vivaldi/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.14.0_0"],
+            "type": "chrome",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/src"
+        }
+    ]
+}
