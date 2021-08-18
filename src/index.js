@@ -3,10 +3,15 @@ import { render } from 'react-dom';
 import ApolloClient, { InMemoryCache } from 'apollo-boost';
 import { ApolloProvider, Query } from 'react-apollo';
 import { GET_DATA } from './gql';
+
+import * as Tone from 'tone';
+
 import getResolvers from './resolvers';
 import App from './App';
 import track from './tracks/dummy';
 import './index.css';
+
+window.Tone = Tone; // For the scribbletune lib to pick up the instance.
 
 const cache = new InMemoryCache();
 const client = new ApolloClient({
