@@ -40,6 +40,8 @@ const getResolvers = track => {
   const trackSession = new Session(channels);
 
   const setChannelVolume = (channelId, volume) => {
+    // TODO: Move this into scribbletune:Channel.setVolume() for maintaining single place of authority.
+
     // Change volume of the active clip on the channelId
     trackSession.channels[channelId].volume = volume;
 
@@ -59,6 +61,14 @@ const getResolvers = track => {
     }
   };
 
+  const startTransport = () => {
+    trackSession?.startTransport();
+  };
+
+  const stopTransport = () => {
+    trackSession?.stopTransport();
+  };
+
   return {
     Mutation: {
       startStopTrack: (_root, { isPlaying }, { cache }) => {
@@ -73,7 +83,7 @@ const getResolvers = track => {
 
         // If "Start" is requested then start it only if not already started
         if (!existingData.isPlaying && isPlaying) {
-          Tone.Transport.start();
+          startTransport();
         }
 
         // If "Stop" is requested then start it only if not already started
@@ -83,7 +93,7 @@ const getResolvers = track => {
             // trackSession.channels[ch.idx].stopClip(ch.activeClipIdx);
             return { ...ch, activeClipIdx: -1 };
           });
-          Tone.Transport.stop();
+          stopTransport();
         }
 
         cache.writeData({
@@ -96,7 +106,7 @@ const getResolvers = track => {
           query: GET_DATA,
         });
         if (!existingData.isPlaying) {
-          Tone.Transport.start();
+          startTransport();
         }
 
         const newChannels = existingData.channels.map(ch => {
