@@ -1,7 +1,7 @@
-import { scale } from 'scribbletune';
+import { scale } from 'scribbletune/browser';
 import { samplers } from '../sounds';
 
-export default {
+const track =  {
   channels: [
     {
       name: 'Kick',
@@ -209,8 +209,7 @@ export default {
     },
   ].map((ch, idx) => {
     ch.clips = ch.clips.map(c => ({
-      ...{ pattern: '' },
-      ...c,
+      ...{ clipStr: (c.pattern ? JSON.stringify(c) : "''") },
       __typename: 'Clip',
     }));
     return {
@@ -221,3 +220,5 @@ export default {
     };
   }),
 };
+
+export default track;

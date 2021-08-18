@@ -1,6 +1,6 @@
 import { samplers } from '../sounds';
 
-export default {
+const track =  {
   channels: [
     {
       name: 'Kick',
@@ -264,3 +264,5 @@ export default {
     };
   }),
 };
+
+export default track;

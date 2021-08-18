@@ -1,7 +1,7 @@
-import { scale, arp } from 'scribbletune';
-import { samplers } from '../sounds';
+import { scale, arp } from 'scribbletune/browser';
+import { getToneMonoSynth, samplers } from '../sounds';
 
-export default {
+const track =  {
   channels: [
     {
       name: 'Kick',
@@ -429,10 +429,32 @@ export default {
         },
       ],
     },
+    {
+      name: 'Synth',
+      sample: '',
+      synth: getToneMonoSynth('FMSynth:ElectricCello'),
+      volume: -20,
+      clips: [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+          pattern: 'x',
+          notes: 'Dm BbM Dm FM',
+          subdiv: '2m',
+          dur: '2m',
+        },
+      ],
+    },
   ].map((ch, idx) => {
     ch.clips = ch.clips.map(c => ({
-      ...{ pattern: '' },
-      ...c,
+      ...{ clipStr: (c.pattern ? JSON.stringify(c) : "''") },
       __typename: 'Clip',
     }));
     return {
@@ -443,3 +465,5 @@ export default {
     };
   }),
 };
+
+export default track;

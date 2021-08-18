@@ -8,7 +8,12 @@ import * as Tone from 'tone';
 
 import getResolvers from './resolvers';
 import App from './App';
-import track from './tracks/dummy';
+
+// import track from './tracks/dummy';
+// import track from './tracks/init';
+// import track from './tracks/half';
+import track from './tracks/final';
+
 import './index.css';
 
 window.Tone = Tone; // For the scribbletune lib to pick up the instance.
