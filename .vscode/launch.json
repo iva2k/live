@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Launch Chrome",
+            "type": "pwa-chrome",
+            "request": "launch",
+            "runtimeArgs": [
+                "--preserve-symlinks"
+            ],
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/src",
+            "preLaunchTask": "debug-start",
+            "postDebugTask": "debug-stop"
+        }
+    ]
+}
