@@ -1,10 +1,11 @@
-import { Session } from 'scribbletune';
+// v3.3.0 import { Session } from 'scribbletune';
+import { Session } from 'scribbletune/browser';
 import { GET_DATA } from './gql';
-
-const Tone = window.Tone;
-Tone.Transport.bpm.value = 138;
+import * as Tone from 'tone';
 
 const getResolvers = track => {
+  Tone.Transport.bpm.value = 138;
+
   const channels = track.channels.map(ch => {
     const channelClips = ch.clips.map((cl, idx) => {
       try {
