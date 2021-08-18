@@ -1,5 +1,6 @@
 import { scale, arp } from 'scribbletune/browser';
 import { getToneMonoSynth, samplers } from '../sounds';
+import PlayOnSoundfontPlayer from '../PlayOnSoundfontPlayer';
 
 const track =  {
   channels: [
@@ -452,7 +453,59 @@ const track =  {
         },
       ],
     },
+{
+  name: 'Soundfont',
+  sample: '',
+  external: PlayOnSoundfontPlayer({
+    name: 'marimba',
+    soundfont: 'FluidR3_GM',
+    // type: "midi",
+    // channel: 0,
+    // patch: 16,
+  }),
+  volume: -20,
+  clips: [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {
+      pattern: 'x',
+      notes: arp({
+        chords: 'Dm Dm Dm BbM Am Am FM CM Dm Dm Dm BbM Gm Gm BbM CM',
+        count: 8,
+        order: '0245',
+      }),
+      subdiv: '16n',
+      dur: '16n',
+    },
+    {
+      pattern: 'x[xx][-x-x][--xx]',
+      notes: arp({
+        chords: 'Dm BbM Am FM',
+        count: 8,
+        order: '0132',
+      }),
+      dur: '16n',
+    },
+    {
+      pattern: 'x',
+      notes: 'Dm BbM Dm FM',
+      subdiv: '2m',
+      dur: '2m',
+    },
+  ],
+},
   ].map((ch, idx) => {
+    if (ch.external) {
+      ch.external = {
+        ...ch.external,
+        __typename: 'ExternalOutput',
+      }
+    }
     ch.clips = ch.clips.map(c => ({
       ...{ clipStr: (c.pattern ? JSON.stringify(c) : "''") },
       __typename: 'Clip',

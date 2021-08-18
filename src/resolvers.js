@@ -59,6 +59,11 @@ const getResolvers = track => {
     if (trackSession.channels[channelId].instrument) {
       trackSession.channels[channelId].instrument.volume.value = volume;
     }
+
+    // Change volume of the external
+    if (trackSession.channels[channelId].external) {
+      trackSession.channels[channelId].external?.setVolume(volume);
+    }
   };
 
   const startTransport = () => {
