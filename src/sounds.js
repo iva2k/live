@@ -1,4 +1,4 @@
-const Tone = window.Tone;
+import * as Tone from 'tone';
 
 export function getToneMonoSynth(synthPreset) {
   const arr = synthPreset.split(':');
