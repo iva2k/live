@@ -40,30 +40,8 @@ const getResolvers = track => {
   const trackSession = new Session(channels);
 
   const setChannelVolume = (channelId, volume) => {
-    // TODO: Move this into scribbletune:Channel.setVolume() for maintaining single place of authority.
-
-    // Change volume of the active clip on the channelId
-    trackSession.channels[channelId].volume = volume;
-
-    // Change volume of the player
-    if (trackSession.channels[channelId].player) {
-      trackSession.channels[channelId].player.volume.value = volume;
-    }
-
-    // Change volume of the sampler
-    if (trackSession.channels[channelId].sampler) {
-      trackSession.channels[channelId].sampler.volume.value = volume;
-    }
-
-    // Change volume of the instrument
-    if (trackSession.channels[channelId].instrument) {
-      trackSession.channels[channelId].instrument.volume.value = volume;
-    }
-
-    // Change volume of the external
-    if (trackSession.channels[channelId].external) {
-      trackSession.channels[channelId].external?.setVolume(volume);
-    }
+    // Change volume of the channel
+    trackSession.channels[channelId].setVolume(volume);
   };
 
   const startTransport = () => {
