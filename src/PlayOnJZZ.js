@@ -20,8 +20,7 @@ const PlayOnJZZ = (options) => {
 
   return {
     init: async (context) => {
-      //? _context = context;
-      _context = {...context};
+      _context = context;
       if (options.channel || options.channel === 0) {
         _ch = options.channel;
       }
@@ -119,6 +118,8 @@ const PlayOnJZZ = (options) => {
       //   opts.duration = duration * 1000 - 10;
       // }
       const delay = (time - _context.currentTime) * 1000;
+      console.log("JZZ time=%o delay=%o note=%o", time, delay, note);
+
       try {
         _instrument.ch(_ch)
           .wait(delay)
