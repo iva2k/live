@@ -15,7 +15,8 @@
     "react-scripts": "^4.0.3",
     "scribbletune": "^4.1.0",
     "soundfont-player": "^0.12.0",
-    "tone": "^13.4.9"
+    "tone": "^13.4.9",
+    "webmidi": "^2.5.2"
   },
   "scripts": {
     "start": "react-scripts start",
