@@ -9,22 +9,19 @@ const getResolvers = track => {
   const channels = track.channels.map(ch => {
     const channelClips = ch.clips.map((cl, idx) => {
       try {
-        let clipObj;
         if (cl.clipStr) {
           /*eslint-disable */
-          clipObj = JSON.parse(cl.clipStr);
+          let clipObj = JSON.parse(cl.clipStr);
           /*eslint-enable */
-        }
-        if (clipObj.pattern) {
-          cl.pattern = clipObj.pattern;
-        }
-
-        if (clipObj.notes) {
-          cl.notes = clipObj.notes;
-        }
-
-        if (clipObj.randomNotes) {
-          cl.randomNotes = clipObj.randomNotes;
+          // ? cl = { clipStr: cl.clipStr, __typename: cl.__typename }; // reset all
+          [ 'pattern', 'notes', 'randomNotes', 'dur', 'subdiv', 
+            'shuffle', 'arpegiate', 'amp', 'sizzle', 'accent', 'accentLow', 'sizzleReps', 'durations',
+            // 'offlineRendering', 'offlineRenderingCallback', 
+          ].forEach(key => {
+            if (clipObj[key]) {
+              cl[key] = clipObj[key];
+            }
+          });
         }
       } catch (e) {
         if (cl.clipStr !== "''") {
