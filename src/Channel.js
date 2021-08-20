@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Col } from 'react-bootstrap';
 import Clip from './Clip';
 
-import { Mutation } from 'react-apollo';
-// TODO: migrate from deprecated apollo-boost to @apollo/client: import { useMutation } from '@apollo/client';
+import { Mutation } from '@apollo/client/react/components';
+
 import { SET_VOLUME } from './gql';
 
 function Channel({ channel }) {
@@ -13,7 +13,8 @@ function Channel({ channel }) {
       <Col>
         {channel.clips &&
           channel.clips.map((c, idx) => {
-            c.idx = idx;
+            // Make a shallow copy, as 'c' passed to us is protected from changes by @apollo/client@3
+            c = {...c, idx};
             c.activeClipIdx = channel.activeClipIdx;
             c.channelId = channel.idx;
             return <Clip {...c} key={idx} />;
@@ -37,7 +38,7 @@ function Channel({ channel }) {
               />
               );
             }}
-          </ Mutation>
+          </Mutation>
         </div>
         <h6 className="text-center">{channel.name}</h6>
       </Col>

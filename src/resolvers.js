@@ -1,6 +1,6 @@
 // v3.3.0 import { Session } from 'scribbletune';
 import { Session } from 'scribbletune/browser';
-import { GET_DATA } from './gql';
+import { GET_DATA, WRITE_DATA } from './gql';
 import * as Tone from 'tone';
 
 const getResolvers = track => {
@@ -76,11 +76,13 @@ const getResolvers = track => {
           stopTransport();
         }
 
-        cache.writeData({
+        cache.writeQuery({
+          query: WRITE_DATA,
           data,
         });
         return null;
       },
+
       playRow: (_root, { activeClipIdx }, { cache }) => {
         const existingData = cache.readQuery({
           query: GET_DATA,
@@ -98,7 +100,10 @@ const getResolvers = track => {
           };
         });
 
-        cache.writeData({ data: { channels: newChannels, isPlaying: true } });
+        cache.writeQuery({
+          query: WRITE_DATA,
+          data: { channels: newChannels, isPlaying: true },
+        });
         return null;
       },
 
@@ -113,7 +118,11 @@ const getResolvers = track => {
           }
           return newChannel;
         });
-        cache.writeData({ data: { channels: newChannels } });
+        cache.writeQuery({
+          query: WRITE_DATA,
+          data: { channels: newChannels },
+        });
+
         // Stop the active clip on the channelId passed in this method
         trackSession.channels[channelId].stopClip(
           existingData.channels[channelId].activeClipIdx
@@ -137,10 +146,9 @@ const getResolvers = track => {
           }
           return newChannel;
         });
-        cache.writeData({
-          data: {
-            channels: newChannels,
-          },
+        cache.writeQuery({
+          query: WRITE_DATA,
+          data: { channels: newChannels },
         });
         // Start the active clip on the channelId passed in this method
         trackSession.channels[channelId].startClip(clipId);
@@ -160,10 +168,9 @@ const getResolvers = track => {
           }
           return newChannel;
         });
-        cache.writeData({
-          data: {
-            channels: newChannels,
-          },
+        cache.writeQuery({
+          query: WRITE_DATA,
+          data: { channels: newChannels },
         });
 
         setChannelVolume(channelId, volume);

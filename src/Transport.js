@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mutation } from 'react-apollo';
+import { Mutation } from '@apollo/client/react/components';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import { START_STOP_TRACK } from './gql';
 

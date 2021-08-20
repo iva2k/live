@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mutation } from 'react-apollo';
+import { Mutation } from '@apollo/client/react/components';
 import { ButtonGroup, Button, Modal } from 'react-bootstrap';
 import { STOP_CLIP, PLAY_CLIP } from './gql';
 import Editor from './Editor';
@@ -7,7 +7,16 @@ import Editor from './Editor';
 function Clip(props) {
   const [showModal, setShowModal] = useState(false);
   // const [isPlaying, setIsPlaying] = useState(false);
-  const [clipStr, setClipStr] = useState(props.clipStr || '');
+
+  // const [clipStr, setClipStr] = useState(props.clipStr || '');
+  const [clipStr] = useState(props.clipStr || '');
+  // const [pattern, setPattern] = useState(props.pattern || '');
+  const [pattern] = useState(props.pattern || '');
+
+  // const [notes, setNotes] = useState(props.notes || '');
+  // const [randomNotes, setRandomNotes] = useState(props.randomNotes || '');
+  // const [subdiv, setSubdiv] = useState(props.subdiv || '4n');
+  // const [dur, setDur] = useState(props.dur || '4n');
 
   // useEffect(() => {
   //   const clipCode = document.getElementById('clipCode');
@@ -22,7 +31,7 @@ function Clip(props) {
   // });
 
   const getClipButton = () => {
-    if (clipStr === "''") {
+    if (!pattern && clipStr === "''") {
       return (
         <Button variant="outline-secondary" disabled={true}>
           &#x25CB;
@@ -86,7 +95,7 @@ function Clip(props) {
       <ButtonGroup>
         {getClipButton()}
         <Button
-          variant={clipStr ? 'secondary' : 'outline-secondary'}
+          variant={pattern || clipStr ? 'secondary' : 'outline-secondary'}
           onClick={() => setShowModal(true)}
           dangerouslySetInnerHTML={{
             __html: '⚙',

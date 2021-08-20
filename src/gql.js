@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 export const GET_DATA = gql`
   query {
@@ -11,6 +11,13 @@ export const GET_DATA = gql`
         clipStr
       }
     }
+    isPlaying @client
+  }
+`;
+
+export const WRITE_DATA = gql`
+  query {
+    channels @client
     isPlaying @client
   }
 `;
