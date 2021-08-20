@@ -118,7 +118,7 @@ const PlayOnJZZ = (options) => {
       //   opts.duration = duration * 1000 - 10;
       // }
       const delay = (time - _context.currentTime) * 1000;
-      console.log("JZZ time=%o delay=%o note=%o", time, delay, note);
+      // console.log("JZZ time=%o delay=%o note=%o", time, delay, note);
 
       try {
         _instrument.ch(_ch)

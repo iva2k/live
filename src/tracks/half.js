@@ -11,12 +11,8 @@ const track =  {
         {},
         {},
         {},
-        {
-          pattern: 'xxxxxxx[xR]xxxxxxx[x--R]',
-        },
-        {
-          pattern: 'xxxxxxx[xR]xxxxxxx[x--R]',
-        },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
         {},
         {},
         {},
@@ -34,13 +30,13 @@ const track =  {
         {},
         {},
         {
-          notes: 'D2',
           pattern: '[-xxx][-xRR]',
+          notes: 'D2',
           randomNotes: scale('D2 minor'),
         },
         {
-          notes: 'E2',
           pattern: '[-xxx][-xRR]',
+          notes: 'E2',
           randomNotes: scale('D2 minor'),
         },
         {},
@@ -207,18 +203,7 @@ const track =  {
       volume: -20,
       clips: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
     },
-  ].map((ch, idx) => {
-    ch.clips = ch.clips.map(c => ({
-      ...{ clipStr: (c.pattern ? JSON.stringify(c) : "''") },
-      __typename: 'Clip',
-    }));
-    return {
-      ...ch,
-      __typename: 'Channel',
-      activeClipIdx: -1,
-      idx,
-    };
-  }),
+  ],
 };
 
 export default track;

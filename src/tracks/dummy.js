@@ -10,12 +10,8 @@ const track =  {
         {},
         {},
         {},
-        {
-          clipStr: `{"pattern": "xxxxxxx[xR]xxxxxxx[x--R]"}`,
-        },
-        {
-          clipStr: `{"pattern": "xxxxxxx[xR]xxxxxxx[x--R]"}`,
-        },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
         {},
         {},
         {},
@@ -33,18 +29,14 @@ const track =  {
         {},
         {},
         {
-          clipStr: `{
-            "notes": "D2",
-            "pattern": "[-xxx][-xRR]",
-            "randomNotes": "D2 E2"
-          }`,
+          pattern: '[-xxx][-xRR]',
+          notes: 'D2',
+          randomNotes: 'D2 E2'
         },
         {
-          clipStr: `{
-            "notes": "E2",
-            "pattern": "[-xxx][-xRR]",
-            "randomNotes": "D2 E2"
-          }`,
+          pattern: '[-xxx][-xRR]',
+          notes: 'E2',
+          randomNotes: 'D2 E2'
         },
         {},
         {},
@@ -59,18 +51,10 @@ const track =  {
       volume: -12,
       clips: [
         {},
-        {
-          clipStr: `{"pattern": "[xx][xx][xx][x[xR]]"}`,
-        },
-        {
-          clipStr: `{"pattern": "[xx][xx][xx][x[xR]]"}`,
-        },
-        {
-          clipStr: `{"pattern": "[xx][xx][xx][x[xR]]"}`,
-        },
-        {
-          clipStr: `{"pattern": "[xx][xx][xx][x[xR]]"}`,
-        },
+        { pattern: '[xx][xx][xx][x[xR]]' },
+        { pattern: '[xx][xx][xx][x[xR]]' },
+        { pattern: '[xx][xx][xx][x[xR]]' },
+        { pattern: '[xx][xx][xx][x[xR]]' },
         {},
         {},
         {},
@@ -86,8 +70,8 @@ const track =  {
         {},
         {},
         {},
-        { clipStr: `{"pattern": "[-x][-[xR]]"}` },
-        { clipStr: `{"pattern": "[-x][-[xR]]"}` },
+        { pattern: '[-x][-[xR]]' },
+        { pattern: '[-x][-[xR]]' },
         {},
         {},
         {},
@@ -104,9 +88,7 @@ const track =  {
         {},
         {},
         {},
-        {
-          clipStr: `{"pattern": "[-x][-R][-x][xR]"}`,
-        },
+        { pattern: '[-x][-R][-x][xR]' },
         {},
         {},
         {},
@@ -121,11 +103,9 @@ const track =  {
       clips: [
         {},
         {},
-        {
-          clipStr: `{"pattern": "-x-x-x-[xR]"}`,
-        },
-        { clipStr: `{"pattern": "-x-x-x-[xR]"}` },
-        { clipStr: `{"pattern": "-x-x-x-[xR]"}` },
+        { pattern: '-x-x-x-[xR]' },
+        { pattern: '-x-x-x-[xR]' },
+        { pattern: '-x-x-x-[xR]' },
         {},
         {},
         {},
@@ -142,9 +122,7 @@ const track =  {
         {},
         {},
         {},
-        {
-          clipStr: `{"pattern": "-x-x-x-x-x-x-x-[xx]"}`,
-        },
+        { pattern: '-x-x-x-x-x-x-x-[xx]' },
         {},
         {},
         {},
@@ -158,19 +136,24 @@ const track =  {
       volume: -6,
       clips: [
         {
-          clipStr: `{"pattern": "----x---", "subdiv": "1m"}`,
+          pattern: '----x---',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "----x---", "subdiv": "1m"}`,
+          pattern: '----x---',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "----x---", "subdiv": "1m"}`,
+          pattern: '----x---',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "----x---", "subdiv": "1m"}`,
+          pattern: '----x---',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "----x---", "subdiv": "1m"}`,
+          pattern: '----x---',
+          subdiv: '1m'
         },
         {},
         {},
@@ -185,19 +168,24 @@ const track =  {
       volume: -18,
       clips: [
         {
-          clipStr: `{"pattern": "---x", "subdiv": "1m"}`,
+          pattern: '---x',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "---x", "subdiv": "1m"}`,
+          pattern: '---x',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "---x", "subdiv": "1m"}`,
+          pattern: '---x',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "---x", "subdiv": "1m"}`,
+          pattern: '---x',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "---x", "subdiv": "1m"}`,
+          pattern: '---x',
+          subdiv: '1m'
         },
         {},
         {},
@@ -212,15 +200,18 @@ const track =  {
       volume: -2,
       clips: [
         {
-          clipStr: `{"pattern": "x-------", "subdiv": "1m"}`,
+          pattern: 'x-------',
+          subdiv: '1m'
         },
         {},
         {},
         {
-          clipStr: `{"pattern": "x-------", "subdiv": "1m"}`,
+          pattern: 'x-------',
+          subdiv: '1m'
         },
         {
-          clipStr: `{"pattern": "x-------", "subdiv": "1m"}`,
+          pattern: 'x-------',
+          subdiv: '1m'
         },
         {},
         {},
@@ -250,19 +241,7 @@ const track =  {
       volume: -20,
       clips: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
     },
-  ].map((ch, idx) => {
-    ch.clips = ch.clips.map(c => ({
-      ...{ clipStr: "''" },
-      ...c,
-      __typename: 'Clip',
-    }));
-    return {
-      ...ch,
-      __typename: 'Channel',
-      activeClipIdx: -1,
-      idx,
-    };
-  }),
+  ],
 };
 
 export default track;

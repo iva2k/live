@@ -14,13 +14,13 @@ const track =  {
         {},
         {},
         {},
-        { pattern: 'xxxxxx[xR]xxxxxx[x--R]' },
-        { pattern: 'xxxxxx[xR]xxxxxx[x--R]' },
-        { pattern: 'xxxxxx[xR]xxxxxx[x--R]' },
-        { pattern: 'xxxxxx[xR]xxxxxx[x--R]' },
-        { pattern: 'xxxxxx[xR]xxxxxx[x--R]' },
-        { pattern: 'xxxxxx[xR]xxxxxx[x--R]' },
-        { pattern: 'xxxxxx[xR]xxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
+        { pattern: 'xxxxxxx[xR]xxxxxxx[x--R]' },
       ],
     },
     {
@@ -593,24 +593,7 @@ const track =  {
         },
       ],
     },
-  ].map((ch, idx) => {
-    if (ch.external) {
-      ch.external = {
-        ...ch.external,
-        __typename: 'ExternalOutput',
-      }
-    }
-    ch.clips = ch.clips.map(c => ({
-      ...{ clipStr: (c.pattern ? JSON.stringify(c) : "''") },
-      __typename: 'Clip',
-    }));
-    return {
-      ...ch,
-      __typename: 'Channel',
-      activeClipIdx: -1,
-      idx,
-    };
-  }),
+  ],
 };
 
 export default track;

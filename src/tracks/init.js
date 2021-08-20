@@ -13,7 +13,7 @@ const track =  {
       name: 'Bass',
       sample: '',
       samples: samplers['mechaBass1'],
-      volume: -18,
+      volume: -16,
       clips: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
     },
     {
@@ -85,18 +85,7 @@ const track =  {
       volume: -20,
       clips: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
     },
-  ].map((ch, idx) => {
-    ch.clips = ch.clips.map(c => ({
-      ...{ clipStr: (c.pattern ? JSON.stringify(c) : "''") },
-      __typename: 'Clip',
-    }));
-    return {
-      ...ch,
-      __typename: 'Channel',
-      activeClipIdx: -1,
-      idx,
-    };
-  }),
+  ],
 };
 
 export default track;
