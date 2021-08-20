@@ -51,6 +51,7 @@ const PlayOnSoundfontPlayer = (options) => {
       if (duration) {
         opts.duration = duration;
       }
+      // console.log("SoundfontPlayer time=%o delay=%o note=%o duration=%o", time, when, note, duration);
       instrument.play(note, when, opts);
     },
 
