@@ -30,10 +30,15 @@ function Clip(props) {
   //   /*eslint-enable */
   // });
 
+  const useRightClick = false; // TODO: UI to change: true;
+  const handleRightClick = (e) => {
+    e.preventDefault();
+    setShowModal(true);
+  };
   const getClipButton = () => {
     if (!pattern && clipStr === "''") {
       return (
-        <Button variant="outline-secondary" disabled={true}>
+        <Button variant="outline-secondary" onContextMenu={handleRightClick}>
           &#x25CB;
         </Button>
       );
@@ -47,7 +52,7 @@ function Clip(props) {
           variables={{ channelId: props.channelId }}
         >
           {stopClip => (
-            <Button variant="danger" onClick={stopClip}>
+            <Button variant="danger" onClick={stopClip} onContextMenu={handleRightClick}>
               {' '}
               &#9632;
             </Button>
@@ -62,7 +67,7 @@ function Clip(props) {
           variables={{ channelId: props.channelId, clipId: props.idx }}
         >
           {playClip => (
-            <Button variant="success" onClick={playClip}>
+            <Button variant="success" onClick={playClip} onContextMenu={handleRightClick}>
               {' '}
               &#9658;
             </Button>
@@ -90,7 +95,14 @@ function Clip(props) {
     );
   };
 
-  return (
+  return useRightClick
+    ? (
+      <div className="clip">
+        {getClipButton()}
+        {getModal()}
+      </div>
+    )
+    : (
     <div className="clip">
       <ButtonGroup>
         {getClipButton()}
