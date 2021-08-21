@@ -5,7 +5,7 @@ import { START_STOP_TRACK } from './gql';
 
 function Transport({ isPlaying }) {
   return (
-    <>
+    <div className="transport">
       <ButtonGroup>
         <Mutation mutation={START_STOP_TRACK} variables={{ isPlaying: false }}>
           {startStopTrack => (
@@ -32,7 +32,7 @@ function Transport({ isPlaying }) {
           )}
         </Mutation>
       </ButtonGroup>
-    </>
+    </div>
   );
 }
 
