@@ -75,7 +75,7 @@ function App() {
                 channels.map(channel => (
                   <Channel channel={channel} key={channel.idx} />
                 ))}
-              <Master count={channels.length && channels[0].clips.length} />
+              <Master count={channels.length && channels.reduce((acc, ch) => acc === undefined || acc < ch.clips.length ? ch.clips.length : acc, 0)} />
             </Row>
           </Container>
         );}}
