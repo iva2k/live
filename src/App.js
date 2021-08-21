@@ -1,13 +1,14 @@
 import React from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from '@apollo/client';
-import { Query, Mutation } from '@apollo/client/react/components';
+import { Query } from '@apollo/client/react/components';
 import * as Tone from 'tone';
 
-import { GET_DATA, WRITE_DATA, PLAY_ROW } from './gql';
+import { GET_DATA, WRITE_DATA } from './gql';
 import Transport from './Transport';
 import Channel from './Channel';
+import Master from './Master';
 
 import getResolvers from './resolvers';
 
@@ -74,25 +75,7 @@ function App() {
                 channels.map(channel => (
                   <Channel channel={channel} key={channel.idx} />
                 ))}
-              <Col>
-                {/* Draw out the buttons on the far right to trigger each row */}
-                {channels.length &&
-                  channels[0].clips.map((el, idx) => (
-                    <div className="clip" key={idx}>
-                      <Mutation
-                        mutation={PLAY_ROW}
-                        variables={{ activeClipIdx: idx }}
-                      >
-                        {playRow => (
-                          <Button variant="outline-dark" onClick={playRow}>
-                            {' '}
-                            &#9658;
-                          </Button>
-                        )}
-                      </Mutation>
-                    </div>
-                  ))}
-              </Col>
+              <Master count={channels.length && channels[0].clips.length} />
             </Row>
           </Container>
         );}}
