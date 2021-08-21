@@ -13,10 +13,9 @@ const getResolvers = track => {
           /*eslint-disable */
           let clipObj = JSON.parse(cl.clipStr);
           /*eslint-enable */
-          // ? cl = { clipStr: cl.clipStr, __typename: cl.__typename }; // reset all
-          [ 'pattern', 'notes', 'randomNotes', 'dur', 'subdiv', 
+          [ 'pattern', 'notes', 'randomNotes', 'dur', 'subdiv',
             'shuffle', 'arpegiate', 'amp', 'sizzle', 'accent', 'accentLow', 'sizzleReps', 'durations',
-            // 'offlineRendering', 'offlineRenderingCallback', 
+            // 'offlineRendering', 'offlineRenderingCallback',
           ].forEach(key => {
             if (clipObj[key]) {
               cl[key] = clipObj[key];
@@ -75,7 +74,6 @@ const getResolvers = track => {
           });
           stopTransport();
         }
-
         cache.writeQuery({
           query: WRITE_DATA,
           data,
@@ -99,7 +97,6 @@ const getResolvers = track => {
             activeClipIdx,
           };
         });
-
         cache.writeQuery({
           query: WRITE_DATA,
           data: { channels: newChannels, isPlaying: true },
