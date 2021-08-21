@@ -1,11 +1,11 @@
 import React from 'react';
 import { Mutation } from '@apollo/client/react/components';
-import { ButtonGroup, Button } from 'react-bootstrap';
+import { ButtonGroup, Button, Col } from 'react-bootstrap';
 import { START_STOP_TRACK } from './gql';
 
 function Transport({ isPlaying }) {
   return (
-    <div className="transport">
+    <Col className="transport">
       <ButtonGroup>
         <Mutation mutation={START_STOP_TRACK} variables={{ isPlaying: false }}>
           {startStopTrack => (
@@ -32,7 +32,7 @@ function Transport({ isPlaying }) {
           )}
         </Mutation>
       </ButtonGroup>
-    </div>
+    </Col>
   );
 }
 

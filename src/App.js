@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
+import Navbar from 'react-bootstrap/Navbar';
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from '@apollo/client';
 import { Query } from '@apollo/client/react/components';
@@ -59,23 +60,40 @@ cache.writeQuery({
 
 function App() {
 
+  let channelsCnt;
+  let clipsCnt;
   return (
     <ApolloProvider client={client}>
       <Query query={GET_DATA}>
-        {({ data: { channels, isPlaying } }) => { return (
+        {({ data: { channels, isPlaying } }) => {
+          channelsCnt = channels.length;
+          clipsCnt = channels.reduce((acc, ch) => acc === undefined || acc < ch.clips.length ? ch.clips.length : acc, 0);
+
+          return (
           <Container channels={channels} isPlaying={isPlaying} fluid={true}>
             <Row>
-              <Col md={5} />
-              <Col md={7}>
+              <Col md={11}>
+                <div>
+                  <Navbar.Brand href="">
+                    <img
+                      src="logo192.png"
+                      className="d-inline-block"
+                      alt="Live logo"
+                    />
+                    Live Scribble
+                  </Navbar.Brand>
+                </div>
+              </Col>
+
+              <Col md={1}>
                 <Transport isPlaying={isPlaying} />
               </Col>
             </Row>
             <Row>
-              {channels.length &&
-                channels.map(channel => (
-                  <Channel channel={channel} key={channel.idx} />
-                ))}
-              <Master count={channels.length && channels.reduce((acc, ch) => acc === undefined || acc < ch.clips.length ? ch.clips.length : acc, 0)} />
+              {channelsCnt && channels.map(channel => (
+                <Channel channel={channel} key={channel.idx} />
+              ))}
+              <Master count={channelsCnt && clipsCnt} />
             </Row>
           </Container>
         );}}
