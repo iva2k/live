@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+import React from 'react';
 import { Col, Button } from 'react-bootstrap';
-import Clip from './Clip';
 
 import { Mutation } from '@apollo/client/react/components';
 
