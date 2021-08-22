@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Button, Row, Col } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import Offcanvas from 'react-bootstrap/Offcanvas';
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from '@apollo/client';
 import { Query } from '@apollo/client/react/components';
@@ -72,12 +75,18 @@ const repeatingBtnSlowTimeMs = 200;
 const repeatingBtnFastTimeMs = 100;
 const repeatingBtnFastDelayMs = 2000;
 
+const enableSidebar = false;
+const enableMenubar = false;
+
 function App() {
 
+  const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [bpmValue, setBpmValue] = useState(120.0);
   // TODO: connect bpm to scribbltune
 
+  const onSidebarClose = () => setShowSidebar(false);
+  const onSidebarOpen = () => setShowSidebar(true);
   const handleShowGearsChangeEvent = () => { setShowGears(!showGears); };
   const handleBpmChangeEvent = (evt) => {
     setBpmValue(+evt.target.value || bpmValue); // Primitive validation // TODO: Better validations (range)
@@ -125,7 +134,7 @@ function App() {
           repeatingBtnClickCnt ++;
         }
       }, repeatingBtnSlowTimeMs);
-      
+
       // Set delay to switch repeating to fast interval
       repeatingBtnTimeoutId = setTimeout(() => {
 
@@ -186,6 +195,22 @@ function App() {
             <Row md={12} className="">
               <Col md={12}>
                 <Navbar bg="primary" variant="dark" className="toolbar">
+                  { enableSidebar && (<>
+                    <Offcanvas show={showSidebar} onHide={onSidebarClose}>
+                    <Offcanvas.Header closeButton>
+                      <Offcanvas.Title>Offcanvas</Offcanvas.Title>
+                    </Offcanvas.Header>
+                      <Offcanvas.Body>
+                        <ListGroup>
+                          <ListGroup.Item>Uno</ListGroup.Item>
+                          <ListGroup.Item>Dos</ListGroup.Item>
+                          <ListGroup.Item>Tres</ListGroup.Item>
+                          <ListGroup.Item>About</ListGroup.Item>
+                        </ListGroup>
+                      </Offcanvas.Body>
+                    </Offcanvas>
+                    <Nav.Link onClick={onSidebarOpen} className="btn-sidebar-open">&#9776;</Nav.Link>
+                  </>)}
 
                   <Navbar.Brand href="#home">
                     <img
@@ -198,10 +223,12 @@ function App() {
                     </span>
                   </Navbar.Brand>
 
-                  {/* <Nav className="me-auto">
-                    <Nav.Link href="#home">Home</Nav.Link>
-                    <Nav.Link href="#features">Features</Nav.Link>
-                  </Nav> */}
+                  { enableMenubar && (<>
+                    <Nav className="me-auto">
+                      <Nav.Link href="#home">Home</Nav.Link>
+                      <Nav.Link href="#features">Features</Nav.Link>
+                    </Nav>
+                  </>)}
 
                   <Navbar.Text>
                     <Form>
