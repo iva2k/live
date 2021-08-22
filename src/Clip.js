@@ -5,6 +5,7 @@ import { STOP_CLIP, PLAY_CLIP } from './gql';
 import Editor from './Editor';
 
 function Clip(props) {
+  const {showGears} = props;
   const [showModal, setShowModal] = useState(false);
   // const [isPlaying, setIsPlaying] = useState(false);
 
@@ -30,7 +31,6 @@ function Clip(props) {
   //   /*eslint-enable */
   // });
 
-  const useRightClick = false; // TODO: UI to change: true;
   const handleRightClick = (e) => {
     e.preventDefault();
     setShowModal(true);
@@ -95,14 +95,8 @@ function Clip(props) {
     );
   };
 
-  return useRightClick
+  return showGears
     ? (
-      <div className="clip">
-        {getClipButton()}
-        {getModal()}
-      </div>
-    )
-    : (
     <div className="clip">
       <ButtonGroup>
         {getClipButton()}
@@ -116,7 +110,14 @@ function Clip(props) {
       </ButtonGroup>
       {getModal()}
     </div>
-  );
+    )
+    : (
+      <div className="clip">
+        {getClipButton()}
+        {getModal()}
+      </div>
+    )
+    ;
 }
 
 export default Clip;

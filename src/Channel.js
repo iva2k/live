@@ -6,8 +6,8 @@ import { Mutation } from '@apollo/client/react/components';
 
 import { SET_VOLUME } from './gql';
 
-function Channel({ channel }) {
-  const [volume, setVolumeState] = useState(channel.volume || 0.7);
+function Channel({ channel, showGears }) {
+  const [volume, setVolumeState] = useState(channel.volume || 0.0);
   return (
     <>
       <Col>
@@ -17,7 +17,7 @@ function Channel({ channel }) {
             c = {...c, idx};
             c.activeClipIdx = channel.activeClipIdx;
             c.channelId = channel.idx;
-            return <Clip {...c} key={idx} />;
+            return <Clip {...c} key={idx} showGears={showGears} />;
           })}
         <div className="volumeSlider">
           <Mutation mutation={SET_VOLUME}>
