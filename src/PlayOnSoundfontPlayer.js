@@ -8,7 +8,13 @@ const PlayOnSoundfontPlayer = (options) => {
 
   return {
     init: async (context) => {
-      let ac = context || new AudioContext(); // ? new webkitAudioContext()
+      const AudioContext =
+        // eslint-disable-next-line compat/compat
+        window.AudioContext || // Default
+        window.webkitAudioContext || // Safari and old versions of Chrome
+        false;
+      if (!context && !AudioContext) throw new Error('Audio is not supported on this browser');
+      const ac = context || new AudioContext();
       vca = ac.createGain();
       vca.gain.value = 1;
       vca.connect(ac.destination);
@@ -17,19 +23,16 @@ const PlayOnSoundfontPlayer = (options) => {
         destination: vca,
       };
       if (options.soundfont) {
-          opts.soundfont = options.soundfont;
+        opts.soundfont = options.soundfont;
       }
-      return Soundfont.instrument(
-        ac,
-        options.name,
-        opts
-      ).then(function (result) {
+      return Soundfont.instrument(ac, options.name, opts).then(function sfInstrumentOk(result) {
         instrument = result;
+        return null;
       });
     },
     setVolume: async (value) => {
       if (vca) {
-        vca.gain.value = 10 ** (value/20); // dB to ratio [0,1]
+        vca.gain.value = 10 ** (value / 20); // dB to ratio [0,1]
         console.log('PlayOnSoundfontPlayer setVolume(%o) gain=%o', value, vca.gain.value);
       }
     },
@@ -51,10 +54,12 @@ const PlayOnSoundfontPlayer = (options) => {
       if (duration) {
         opts.duration = duration;
       }
+      if (velocity) {
+        opts.gain = velocity;
+      }
       // console.log("SoundfontPlayer time=%o delay=%o note=%o duration=%o", time, when, note, duration);
       instrument.play(note, when, opts);
     },
-
   };
 };
 

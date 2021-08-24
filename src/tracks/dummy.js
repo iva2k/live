@@ -1,6 +1,6 @@
 import { samplers } from '../sounds';
 
-const track =  {
+const track = {
   channels: [
     {
       name: 'Kick',
@@ -31,12 +31,12 @@ const track =  {
         {
           pattern: '[-xxx][-xRR]',
           notes: 'D2',
-          randomNotes: 'D2 E2'
+          randomNotes: 'D2 E2',
         },
         {
           pattern: '[-xxx][-xRR]',
           notes: 'E2',
-          randomNotes: 'D2 E2'
+          randomNotes: 'D2 E2',
         },
         {},
         {},
@@ -66,35 +66,13 @@ const track =  {
       name: 'Oh',
       sample: '/sounds/samples/ch2.wav',
       volume: -14,
-      clips: [
-        {},
-        {},
-        {},
-        { pattern: '[-x][-[xR]]' },
-        { pattern: '[-x][-[xR]]' },
-        {},
-        {},
-        {},
-        {},
-        {},
-      ],
+      clips: [{}, {}, {}, { pattern: '[-x][-[xR]]' }, { pattern: '[-x][-[xR]]' }, {}, {}, {}, {}, {}],
     },
     {
       name: 'Oh2',
       sample: '/sounds/samples/oh.wav',
       volume: -18,
-      clips: [
-        {},
-        {},
-        {},
-        {},
-        { pattern: '[-x][-R][-x][xR]' },
-        {},
-        {},
-        {},
-        {},
-        {},
-      ],
+      clips: [{}, {}, {}, {}, { pattern: '[-x][-R][-x][xR]' }, {}, {}, {}, {}, {}],
     },
     {
       name: 'Clap',
@@ -117,18 +95,7 @@ const track =  {
       name: 'Acid',
       sample: '/sounds/samples/acid.wav',
       volume: -12,
-      clips: [
-        {},
-        {},
-        {},
-        {},
-        { pattern: '-x-x-x-x-x-x-x-[xx]' },
-        {},
-        {},
-        {},
-        {},
-        {},
-      ],
+      clips: [{}, {}, {}, {}, { pattern: '-x-x-x-x-x-x-x-[xx]' }, {}, {}, {}, {}, {}],
     },
     {
       name: 'Fx1',
@@ -137,23 +104,23 @@ const track =  {
       clips: [
         {
           pattern: '----x---',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '----x---',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '----x---',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '----x---',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '----x---',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {},
         {},
@@ -169,23 +136,23 @@ const track =  {
       clips: [
         {
           pattern: '---x',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '---x',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '---x',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '---x',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: '---x',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {},
         {},
@@ -201,17 +168,17 @@ const track =  {
       clips: [
         {
           pattern: 'x-------',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {},
         {},
         {
           pattern: 'x-------',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {
           pattern: 'x-------',
-          subdiv: '1m'
+          subdiv: '1m',
         },
         {},
         {},

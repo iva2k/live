@@ -1,39 +1,73 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "debug-start",
-            "type": "npm",
-            "script": "start",
-            "isBackground": true,
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared"
-            },
-            "problemMatcher": {
-                "owner": "custom", // This is not needed but, required by the problemMatcher Object
-                "pattern": {
-                    "regexp": "^$" // This is not needed but, required by the problemMatcher Object
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": "Compiling...", // Signals the begin of the Task
-                    "endsPattern": "Compiled .*" // Signals that now the initialization of the task is complete
-                }
-            }
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "debug-start",
+      "type": "npm",
+      "script": "start",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "owner": "custom", // This is not needed but, required by the problemMatcher Object
+        "pattern": {
+          "regexp": "^$" // This is not needed but, required by the problemMatcher Object
         },
-        {
-            "label": "debug-stop",
-            "command": "echo ${input:terminate}",
-            "type": "shell"
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Compiling...", // Signals the begin of the Task
+          "endsPattern": "Compiled .*" // Signals that now the initialization of the task is complete
         }
-    ],
-    "inputs": [
-        {
-            "id": "terminate",
-            "type": "command",
-            "command": "workbench.action.tasks.terminate",
-            "args": "debug-start"
-        }
-    ]
+      }
+    },
+    {
+      "label": "debug-stop",
+      "command": "echo ${input:terminate}",
+      "type": "shell"
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": {
+        "owner": "eslint",
+        "fileLocation": "absolute",
+        "pattern": [
+          {
+            "regexp": "^([^\\s].*)$",
+            "file": 1
+          },
+          {
+            "regexp": "^\\s+(\\d+):(\\d+)\\s+(error|warning|info)\\s+(.*)\\s\\s+(.*)$",
+            "line": 1,
+            "column": 2,
+            "severity": 3,
+            "message": 4,
+            "code": 5,
+            "loop": true
+          }
+        ]
+      },
+      "label": "npm: lint",
+      "detail": "lint check"
+    },
+    {
+      "type": "npm",
+      "script": "lint:fix",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ],
+      "label": "npm: lint:fix",
+      "detail": "lint fix"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "terminate",
+      "type": "command",
+      "command": "workbench.action.tasks.terminate",
+      "args": "debug-start"
+    }
+  ]
 }

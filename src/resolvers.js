@@ -1,22 +1,34 @@
 // v3.3.0 import { Session } from 'scribbletune';
 import { Session } from 'scribbletune/browser';
-import { GET_DATA, WRITE_DATA } from './gql';
 import * as Tone from 'tone';
+import { GET_DATA, WRITE_DATA } from './gql';
 
-const getResolvers = track => {
+const getResolvers = (track) => {
   Tone.Transport.bpm.value = 138;
 
-  const channels = track.channels.map(ch => {
+  const channels = track.channels.map((ch) => {
     const channelClips = ch.clips.map((cl, idx) => {
       try {
         if (cl.clipStr) {
-          /*eslint-disable */
+          /* eslint-disable */
           let clipObj = JSON.parse(cl.clipStr);
-          /*eslint-enable */
-          [ 'pattern', 'notes', 'randomNotes', 'dur', 'subdiv',
-            'shuffle', 'arpegiate', 'amp', 'sizzle', 'accent', 'accentLow', 'sizzleReps', 'durations',
+          /* eslint-enable */
+          [
+            'pattern',
+            'notes',
+            'randomNotes',
+            'dur',
+            'subdiv',
+            'shuffle',
+            'arpegiate',
+            'amp',
+            'sizzle',
+            'accent',
+            'accentLow',
+            'sizzleReps',
+            'durations',
             // 'offlineRendering', 'offlineRenderingCallback',
-          ].forEach(key => {
+          ].forEach((key) => {
             if (clipObj[key]) {
               cl[key] = clipObj[key];
             }
@@ -35,9 +47,9 @@ const getResolvers = track => {
   });
   const trackSession = new Session(channels);
 
-  const setChannelVolume = (channelId, volume) => {
+  const setChannelVolume = (channelIdx, volume) => {
     // Change volume of the channel
-    trackSession.channels[channelId].setVolume(volume);
+    trackSession.channels[channelIdx].setVolume(volume);
   };
 
   const startTransport = () => {
@@ -68,10 +80,10 @@ const getResolvers = track => {
         // If "Stop" is requested then start it only if not already started
         if (existingData.isPlaying && !isPlaying) {
           // Stop any playing clip as well
-          data.channels = existingData.channels.map(ch => {
+          data.channels = existingData.channels.map((ch) =>
             // trackSession.channels[ch.idx].stopClip(ch.activeClipIdx);
-            return { ...ch, activeClipIdx: -1 };
-          });
+            ({ ...ch, activeClipIdx: -1 })
+          );
           stopTransport();
         }
         cache.writeQuery({
@@ -89,7 +101,7 @@ const getResolvers = track => {
           startTransport();
         }
 
-        const newChannels = existingData.channels.map(ch => {
+        const newChannels = existingData.channels.map((ch) => {
           trackSession.channels[ch.idx].startClip(activeClipIdx);
           setChannelVolume(ch.idx, ch.volume);
           return {
@@ -104,13 +116,13 @@ const getResolvers = track => {
         return null;
       },
 
-      stopClip: (_root, { channelId }, { cache }) => {
+      stopClip: (_root, { channelIdx }, { cache }) => {
         const existingData = cache.readQuery({
           query: GET_DATA,
         });
-        const newChannels = existingData.channels.map(ch => {
+        const newChannels = existingData.channels.map((ch) => {
           const newChannel = { ...ch };
-          if (ch.idx === channelId) {
+          if (ch.idx === channelIdx) {
             newChannel.activeClipIdx = -1;
           }
           return newChannel;
@@ -120,23 +132,21 @@ const getResolvers = track => {
           data: { channels: newChannels },
         });
 
-        // Stop the active clip on the channelId passed in this method
-        trackSession.channels[channelId].stopClip(
-          existingData.channels[channelId].activeClipIdx
-        );
+        // Stop the active clip on the channelIdx passed in this method
+        trackSession.channels[channelIdx].stopClip(existingData.channels[channelIdx].activeClipIdx);
         return null;
       },
 
-      playClip: (_root, { channelId, clipId }, { cache }) => {
+      playClip: (_root, { channelIdx, clipId }, { cache }) => {
         const existingData = cache.readQuery({
           query: GET_DATA,
         });
         let volume;
-        const newChannels = existingData.channels.map(ch => {
+        const newChannels = existingData.channels.map((ch) => {
           const newChannel = {
             ...ch,
           };
-          if (ch.idx === channelId) {
+          if (ch.idx === channelIdx) {
             newChannel.activeClipIdx = clipId;
             // play the new clip
             volume = ch.volume;
@@ -147,19 +157,19 @@ const getResolvers = track => {
           query: WRITE_DATA,
           data: { channels: newChannels },
         });
-        // Start the active clip on the channelId passed in this method
-        trackSession.channels[channelId].startClip(clipId);
-        setChannelVolume(channelId, volume);
+        // Start the active clip on the channelIdx passed in this method
+        trackSession.channels[channelIdx].startClip(clipId);
+        setChannelVolume(channelIdx, volume);
         return null;
       },
 
-      setVolume: (_root, { channelId, volume }, { cache }) => {
+      setVolume: (_root, { channelIdx, volume }, { cache }) => {
         const existingData = cache.readQuery({
           query: GET_DATA,
         });
-        const newChannels = existingData.channels.map(ch => {
+        const newChannels = existingData.channels.map((ch) => {
           const newChannel = { ...ch };
-          if (ch.idx === channelId) {
+          if (ch.idx === channelIdx) {
             newChannel.volume = volume;
             // set channel volume
           }
@@ -170,10 +180,9 @@ const getResolvers = track => {
           data: { channels: newChannels },
         });
 
-        setChannelVolume(channelId, volume);
+        setChannelVolume(channelIdx, volume);
         return null;
       },
-
     },
   };
 };

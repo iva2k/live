@@ -5,7 +5,7 @@ import Note from './Note';
 
 const Editor = ({ noteCount = 4 }) => {
   const noteComps = [];
-  for (let i = 0; i < noteCount; i++) {
+  for (let i = 0; i < noteCount; i += 1) {
     noteComps.push(<Note />);
   }
 
@@ -21,7 +21,7 @@ const Editor = ({ noteCount = 4 }) => {
           </select>
         </Col>
       </Row> */}
-      <div className="menu"></div>
+      <div className="menu" />
       <div className="ptn">{noteComps}</div>
     </section>
   );

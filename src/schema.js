@@ -1,6 +1,6 @@
 import { GraphQLEnumType } from 'graphql';
 
-var InstrumentEnum = new GraphQLEnumType({
+const InstrumentEnum = new GraphQLEnumType({
   name: 'Instrument',
   values: {
     SAMPLE: { value: 'sample' },

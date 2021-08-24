@@ -5,12 +5,39 @@ const Note = () => {
   const onClickHandler = () => {
     setPtn(ptn === '-' ? 'x' : '-');
   };
-  const comp =
-    ptn === '-' ? (
-      <div onClick={onClickHandler} className="noteCel noteOn"></div>
-    ) : (
-      <div onClick={onClickHandler} className="noteCel noteOff"></div>
-    );
+  const handleKeyDown = (evt) => {
+    const { key } = evt;
+    switch (key) {
+      case ' ':
+        setPtn(ptn === '-' ? 'x' : '-');
+        break;
+
+      case 'Backspace':
+      case 'Delete':
+        setPtn('-');
+        break;
+
+      case 'r':
+      case 'R':
+      case 'Enter':
+        setPtn('R');
+        break;
+
+      // TODO: Implement keyboard navigation (at upper component?)
+
+      default:
+        break;
+    }
+  };
+  const comp = (
+    <div
+      onKeyDown={handleKeyDown}
+      onClick={onClickHandler}
+      role="button"
+      tabIndex={0}
+      className="noteCel {ptn === '-' ? 'noteOff' : 'noteOn'}"
+    />
+  );
   return comp;
 };
 

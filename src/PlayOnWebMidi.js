@@ -1,6 +1,6 @@
 // npm install --save webmidi
 // https://github.com/djipco/webmidi
-import WebMidi from "webmidi";
+import WebMidi from 'webmidi';
 
 const PlayOnWebMidi = (options) => {
   // options:
@@ -15,22 +15,22 @@ const PlayOnWebMidi = (options) => {
 
   return {
     init: async (context) => {
-      //? _context = context;
-      _context = {...context};
+      // ? _context = context;
+      _context = { ...context };
       if (options.channel || options.channel === 0) {
         _ch = options.channel;
       }
       return new Promise((resolve, reject) => {
-        WebMidi.enable(function (err) {
+        WebMidi.enable(function wmStartResult(err) {
           if (err) {
-            console.error("Error %o when enabling WebMidi.", err);
+            console.error('Error %o when enabling WebMidi.', err);
             _instrument = false;
             reject(err);
             return;
           }
-          console.log("WebMidi inputs: %o", WebMidi.inputs);
-          console.log("WebMidi outputs: %o", WebMidi.outputs);
-          let output = 0;
+          console.log('WebMidi inputs: %o', WebMidi.inputs);
+          console.log('WebMidi outputs: %o', WebMidi.outputs);
+          const output = 0;
           _instrument = WebMidi.outputs[output];
           if (!_instrument) {
             reject(new Error(`WebMidi output ${output} not found`));
@@ -41,7 +41,7 @@ const PlayOnWebMidi = (options) => {
           }
           if (options.program) {
             _program = options.program;
-            _instrument.sendProgramChange(_program, _ch,  {});
+            _instrument.sendProgramChange(_program, _ch, {});
           }
           resolve();
         });
@@ -55,19 +55,29 @@ const PlayOnWebMidi = (options) => {
       }
     },
     setVolume: async (value) => {
-      const gain = 10 ** (value/20); // dB to ratio [0,1]
+      const gain = 10 ** (value / 20); // dB to ratio [0,1]
       console.log('PlayOnWebMidi setVolume(%o) gain=%o', value, gain);
       if (!_instrument) {
-          return;
+        return;
       }
       try {
         // _float(x);
         // ( (x) => { (x !== parseFloat(x)) { throw TypeError('Not a number: ' + x); } })(gain);
-        const value14b = ((x) => { return x <= 0 ? 0 : x >= 1 ? 0x3fff : Math.floor(x * 0x4000); })(gain);
-        _instrument.sendControlChange( 'volumecoarse',  (value14b >>   7), _ch, {});  // MSB
-        _instrument.sendControlChange( 'volumefine',    (value14b & 0x7f), _ch, {});  // LSB
+        const value14b = ((x) => {
+          if (x <= 0) {
+            return 0;
+          }
+          if (x >= 1) {
+            return 0x3fff;
+          }
+          return Math.floor(x * 0x4000);
+        })(gain);
+        /* eslint-disable no-bitwise */
+        _instrument.sendControlChange('volumecoarse', value14b >> 7, _ch, {}); // MSB
+        _instrument.sendControlChange('volumefine', value14b & 0x7f, _ch, {}); // LSB
+        /* eslint-enable no-bitwise */
       } catch (error) {
-        console.error("Error %o in sendControlChange(), gain=%o", error, gain);
+        console.error('Error %o in sendControlChange(), gain=%o', error, gain);
       }
     },
     triggerAttackRelease: async (note, duration, time, velocity) => {
@@ -83,21 +93,22 @@ const PlayOnWebMidi = (options) => {
       //   release: Number The velocity at which to release the note
       //   velocity: Number The velocity at which to play the note
 
-      
       // const offset = WebMidi.time - _context.currentTime * 1000;
       // opts.time = "+" + time * 1000 + offset;
       const delay = (time - _context.currentTime) * 1000;
-      opts.time = "+" + delay;
+      opts.time = `+${delay}`;
       if (duration) {
         opts.duration = duration * 1000 - 10;
+      }
+      if (velocity) {
+        opts.velocity = 127.0 * velocity;
       }
       try {
         _instrument.playNote(note, _ch, opts);
       } catch (error) {
-        console.error("Error %o in WebMidi, note=%o", error, note);
+        console.error('Error %o in WebMidi, note=%o', error, note);
       }
     },
-
   };
 };
 

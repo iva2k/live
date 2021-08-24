@@ -1,7 +1,7 @@
 // import { scale, arp } from 'scribbletune/browser';
 import { samplers } from '../sounds';
 
-const track =  {
+const track = {
   channels: [
     {
       name: 'Kick',

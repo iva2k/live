@@ -1,11 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable quote-props */
 import * as Tone from 'tone';
-
-export function getToneMonoSynth(synthPreset) {
-  const arr = synthPreset.split(':');
-  const synth = arr[0];
-  const preset = arr[1];
-  return new Tone[synth](preset ? ToneMonoSynths[synth][preset] : '');
-}
 
 const ToneMonoSynths = {
   FMSynth: {
@@ -547,6 +542,7 @@ export const samplers = {
     gb1: '/sounds/samplers/psyTranceBass/gb1.wav',
     gb2: '/sounds/samplers/psyTranceBass/gb2.wav',
   },
+
   clickBass: {
     A2: '/sounds/samplers/clickBass/A.wav',
     Ab2: '/sounds/samplers/clickBass/Ab.wav',
@@ -672,3 +668,10 @@ export const samplers = {
     Ab3: '/sounds/samplers/mechaBass3/Ab3.WAV',
   },
 };
+
+export function getToneMonoSynth(synthPreset) {
+  const arr = synthPreset.split(':');
+  const synth = arr[0];
+  const preset = arr[1];
+  return new Tone[synth](preset ? ToneMonoSynths[synth][preset] : '');
+}

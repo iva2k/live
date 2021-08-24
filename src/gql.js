@@ -29,14 +29,14 @@ export const PLAY_ROW = gql`
 `;
 
 export const STOP_CLIP = gql`
-  mutation stopClip($channelId: Number!) {
-    stopClip(channelId: $channelId) @client
+  mutation stopClip($channelIdx: Number!) {
+    stopClip(channelIdx: $channelIdx) @client
   }
 `;
 
 export const PLAY_CLIP = gql`
-  mutation playClip($channelId: Number!, $clipId: Number!) {
-    playClip(channelId: $channelId, clipId: $clipId) @client
+  mutation playClip($channelIdx: Number!, $clipId: Number!) {
+    playClip(channelIdx: $channelIdx, clipId: $clipId) @client
   }
 `;
 
@@ -47,7 +47,7 @@ export const START_STOP_TRACK = gql`
 `;
 
 export const SET_VOLUME = gql`
-  mutation setVolume($channelId: Number!, $volume: Number!) {
-    setVolume(channelId: $channelId, volume: $volume) @client
+  mutation setVolume($channelIdx: Number!, $volume: Number!) {
+    setVolume(channelIdx: $channelIdx, volume: $volume) @client
   }
 `;

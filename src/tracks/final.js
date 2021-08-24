@@ -4,7 +4,7 @@ import PlayOnJZZ from '../PlayOnJZZ';
 import PlayOnSoundfontPlayer from '../PlayOnSoundfontPlayer';
 import PlayOnWebMidi from '../PlayOnWebMidi';
 
-const track =  {
+const track = {
   channels: [
     {
       name: 'Kick',
@@ -33,42 +33,42 @@ const track =  {
         {},
         {},
         {
-          pattern: '[-xxx][-xRR]', //good riff
+          pattern: '[-xxx][-xRR]', // good riff
           notes: 'D2',
           randomNotes: scale('D2 minor').slice(1),
           dur: '32n',
         },
         {
-          pattern: '[-xxx][-xRR]', //good riff
+          pattern: '[-xxx][-xRR]', // good riff
           notes: 'E2',
           randomNotes: scale('D2 minor').slice(1),
           dur: '32n',
         },
         {
-          pattern: '[-x][-R]', //good riff
+          pattern: '[-x][-R]', // good riff
           notes: 'D2',
           randomNotes: scale('D2 minor').slice(1),
         },
         {
-          pattern: '[-xxx][-xRR]', //good riff
-          notes: 'D2',
-          randomNotes: scale('D2 minor').slice(1),
-          dur: '32n',
-        },
-        {
-          pattern: '[-xxx][-xRR]', //good riff
+          pattern: '[-xxx][-xRR]', // good riff
           notes: 'D2',
           randomNotes: scale('D2 minor').slice(1),
           dur: '32n',
         },
         {
-          pattern: '[-xxx][-xRR]', //good riff
+          pattern: '[-xxx][-xRR]', // good riff
           notes: 'D2',
           randomNotes: scale('D2 minor').slice(1),
           dur: '32n',
         },
         {
-          pattern: '[-xxx][-xRR]', //good riff
+          pattern: '[-xxx][-xRR]', // good riff
+          notes: 'D2',
+          randomNotes: scale('D2 minor').slice(1),
+          dur: '32n',
+        },
+        {
+          pattern: '[-xxx][-xRR]', // good riff
           notes: 'D2',
           randomNotes: scale('D2 minor').slice(1),
           dur: '32n',
@@ -161,7 +161,7 @@ const track =  {
         {},
         {},
         {
-          pattern: '-x-x-x-[xR]'.repeat(3) + '-x-xxx[xx][xxxx]',
+          pattern: `${'-x-x-x-[xR]'.repeat(3)}-x-xxx[xx][xxxx]`,
           dur: '8n',
         },
         {
@@ -181,11 +181,11 @@ const track =  {
           dur: '8n',
         },
         {
-          pattern: '-x-x-x-[xR]'.repeat(7) + '-x-xxx[xx][xxxx]',
+          pattern: `${'-x-x-x-[xR]'.repeat(7)}-x-xxx[xx][xxxx]`,
           dur: '8n',
         },
         {
-          pattern: '-x-x-x-[xR]'.repeat(7) + '-x-xxx[xx][xxxx]',
+          pattern: `${'-x-x-x-[xR]'.repeat(7)}-x-xxx[xx][xxxx]`,
           dur: '8n',
         },
         {
@@ -459,9 +459,9 @@ const track =  {
       name: 'JZZ',
       sample: '',
       external: PlayOnJZZ({
-        //? name: 'marimba',
-        //? soundfont: 'FluidR3_GM',
-        //? output: 0,
+        // ? name: 'marimba',
+        // ? soundfont: 'FluidR3_GM',
+        // ? output: 0,
         channel: 1,
         program: 16,
       }),
@@ -551,9 +551,9 @@ const track =  {
       name: 'WebMidi',
       sample: '',
       external: PlayOnWebMidi({
-        //? name: 'marimba',
-        //? soundfont: 'FluidR3_GM',
-        //? output: 0,
+        // ? name: 'marimba',
+        // ? soundfont: 'FluidR3_GM',
+        // ? output: 0,
         channel: 1,
         program: 16,
       }),

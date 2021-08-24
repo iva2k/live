@@ -1,6 +1,7 @@
 // npm install --save jzz jzz-synth-tiny
 import * as JZZ from 'jzz';
 import * as synth from 'jzz-synth-tiny';
+
 let synthLoaded = false;
 
 const PlayOnJZZ = (options) => {
@@ -34,7 +35,8 @@ const PlayOnJZZ = (options) => {
         JZZ()
           .or('Cannot start MIDI engine')
           // // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-          .and(function() { // Must be non-arrow anonymous funcition
+          .and(function jzzRegister() {
+            // Must be non-arrow anonymous funcition
             JZZ.synth.Tiny.register('Web Audio'); // Register for fallback
             // Name given here will be listed in the outputs.
             // Not sure how that works. if JZZ.synth.Tiny.register() is not called, there will be no output and no sound.
@@ -44,15 +46,19 @@ const PlayOnJZZ = (options) => {
           });
       }
       return new Promise((resolve, reject) => {
-        JZZ().openMidiOut('Web Audio').or('Cannot open MIDI Out port').then((midiPort) => {
-          _instrument = midiPort;
-          if (options.program) {
-            _program = options.program;
-            _instrument.program(_ch, _program);
-          }
-          resolve();
-          return;
-        });
+        JZZ()
+          .openMidiOut('Web Audio')
+          .or('Cannot open MIDI Out port')
+          .then((midiPort) => {
+            _instrument = midiPort;
+            if (options.program) {
+              _program = options.program;
+              _instrument.program(_ch, _program);
+            }
+            resolve();
+            return null;
+          })
+          .catch(reject);
       });
     },
     stop: () => {
@@ -74,11 +80,14 @@ const PlayOnJZZ = (options) => {
       return new Promise((resolve, reject) => {
         JZZ()
           // // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-          .or(function() { reject('Cannot start MIDI engine'); })
+          .or(function jzzStartError() {
+            reject(new Error('Cannot start MIDI engine'));
+          })
           // // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-          .and(function() { // JZZ can't use '=>' as it needs its own 'this'
+          .and(function jzzStartOk() {
+            // JZZ can't use '=>' as it needs its own 'this'
             midiOutputs = this.info().outputs;
-            midiOutputs.forEach(out => {
+            midiOutputs.forEach((out) => {
               if (out.engine === 'crx' || out.engine === 'plugin') {
                 // jzzPluginInstalled = true;
               }
@@ -88,15 +97,15 @@ const PlayOnJZZ = (options) => {
       });
     },
     setVolume: async (value) => {
-      const gain = 10 ** (value/20); // dB to ratio [0,1]
+      const gain = 10 ** (value / 20); // dB to ratio [0,1]
       console.log('PlayOnJZZ setVolume(%o) gain=%o', value, gain);
       if (!_instrument) {
-          return;
+        return;
       }
       try {
         _instrument.volumeF(_ch, gain);
       } catch (error) {
-        console.error("Error %o in JZZ volumeF(), gain=%o", error, gain);
+        console.error('Error %o in JZZ volumeF(), gain=%o', error, gain);
       }
     },
     triggerAttackRelease: async (note, duration, time, velocity) => {
@@ -121,17 +130,16 @@ const PlayOnJZZ = (options) => {
       // console.log("JZZ time=%o delay=%o note=%o duration=%o", time, delay, note, duration);
 
       try {
-        _instrument.ch(_ch)
+        _instrument
+          .ch(_ch)
           .wait(delay)
           .noteOn(note, velocity)
           .wait(duration * 1000 - 10)
-          .noteOff(note)
-        ;
+          .noteOff(note);
       } catch (error) {
-        console.error("Error %o in JZZ, note=%o", error, note);
+        console.error('Error %o in JZZ, note=%o', error, note);
       }
     },
-
   };
 };
 

@@ -5,8 +5,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { ApolloProvider } from '@apollo/client';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { Query } from '@apollo/client/react/components';
 import * as Tone from 'tone';
 
@@ -17,24 +16,25 @@ import Master from './Master';
 
 import getResolvers from './resolvers';
 
-
 // import trackRaw from './tracks/dummy';
 // import trackRaw from './tracks/init';
 // import trackRaw from './tracks/half';
 import trackRaw from './tracks/final';
+
 const trackFileName = 'final.js';
-let track = {
+const track = {
   ...trackRaw,
   channels: trackRaw.channels.map((ch, idx) => {
     if (ch.external) {
       ch.external = {
         ...ch.external,
         __typename: 'ExternalOutput',
-      }
+      };
     }
-    ch.clips = ch.clips.map(c => ({
-      pattern: '', ...c,
-      ...{ clipStr: (c.pattern ? JSON.stringify(c) : "''") },
+    ch.clips = ch.clips.map((c) => ({
+      pattern: '',
+      ...c,
+      ...{ clipStr: c.pattern ? JSON.stringify(c) : "''" },
       __typename: 'Clip',
     }));
     return {
@@ -43,7 +43,7 @@ let track = {
       activeClipIdx: -1,
       idx,
     };
-  })
+  }),
 };
 
 window.Tone = Tone; // For the scribbletune lib to pick up the instance.
@@ -60,7 +60,7 @@ cache.writeQuery({
   data: {
     ...track,
     isPlaying: false,
-  }
+  },
 });
 
 // Globals for mouse/pointer tracking in number spinner control (bpm)
@@ -79,7 +79,6 @@ const enableSidebar = false;
 const enableMenubar = false;
 
 function App() {
-
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [bpmValue, setBpmValue] = useState(120.0);
@@ -87,7 +86,9 @@ function App() {
 
   const onSidebarClose = () => setShowSidebar(false);
   const onSidebarOpen = () => setShowSidebar(true);
-  const handleShowGearsChangeEvent = () => { setShowGears(!showGears); };
+  const handleShowGearsChangeEvent = () => {
+    setShowGears(!showGears);
+  };
   const handleBpmChangeEvent = (evt) => {
     setBpmValue(+evt.target.value || bpmValue); // Primitive validation // TODO: Better validations (range)
   };
@@ -104,12 +105,19 @@ function App() {
     // Track pointer regardless of which mouse button
     if (evt.type === 'pointerenter' || evt.type === 'mouseenter' || evt.type === 'mouseover') {
       repeatingBtnPointerIn = true;
-    } else if (evt.type === 'pointerout' || evt.type === 'pointerleave' || evt.type === 'mouseleave' || evt.type === 'mouseout') {
+    } else if (
+      evt.type === 'pointerout' ||
+      evt.type === 'pointerleave' ||
+      evt.type === 'mouseleave' ||
+      evt.type === 'mouseout'
+    ) {
       repeatingBtnPointerIn = false;
     }
 
     // The rest of events of interest should be for left-click
-    if (evt.button !== 0) { return; }
+    if (evt.button !== 0) {
+      return;
+    }
 
     if (evt.type === 'pointerdown') {
       evt.preventDefault();
@@ -131,13 +139,12 @@ function App() {
           // repeatingBtnInOurClickHandler = true;
           evt.target.click();
           // repeatingBtnInOurClickHandler = false;
-          repeatingBtnClickCnt ++;
+          repeatingBtnClickCnt += 1;
         }
       }, repeatingBtnSlowTimeMs);
 
       // Set delay to switch repeating to fast interval
       repeatingBtnTimeoutId = setTimeout(() => {
-
         // Change repeating to fast interval
         clearInterval(repeatingBtnIntervalId);
         repeatingBtnIntervalId = setInterval(() => {
@@ -147,11 +154,10 @@ function App() {
             // repeatingBtnInOurClickHandler = true;
             evt.target.click();
             // repeatingBtnInOurClickHandler = false;
-            repeatingBtnClickCnt ++;
+            repeatingBtnClickCnt += 1;
           }
         }, repeatingBtnFastTimeMs);
       }, repeatingBtnFastDelayMs);
-
     } else if (evt.type === 'pointerup' || evt.type === 'pointercancel') {
       // evt.preventDefault();
       evt.target.releasePointerCapture(evt.pointerId);
@@ -163,15 +169,15 @@ function App() {
       repeatingBtnTimeoutId = undefined;
       if (repeatingBtnClickCnt !== 0) {
         // evt.preventDefault();
-      // } else if (repeatingBtnPointerIn && !repeatingBtnInOurClickHandler) {
+        // } else if (repeatingBtnPointerIn && !repeatingBtnInOurClickHandler) {
       } else if (repeatingBtnPointerIn) {
         // console.log('click once repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
         // repeatingBtnInOurClickHandler = true; evt.target.click(); repeatingBtnInOurClickHandler = false;
-        repeatingBtnClickCnt ++;
+        repeatingBtnClickCnt += 1;
       }
       repeatingBtnPointerIn = false;
     }
-  }
+  };
   const handleBpmDecrEvent = () => {
     setBpmValue(bpmValue - 1);
     // console.log('handleBpmDecrEvent() %o', bpmValue);
@@ -188,97 +194,133 @@ function App() {
       <Query query={GET_DATA}>
         {({ data: { channels, isPlaying } }) => {
           channelsCnt = channels.length;
-          clipsCnt = channels.reduce((acc, ch) => acc === undefined || acc < ch.clips.length ? ch.clips.length : acc, 0);
+          clipsCnt = channels.reduce(
+            (acc, ch) => (acc === undefined || acc < ch.clips.length ? ch.clips.length : acc),
+            0
+          );
 
           return (
-          <Container fluid={true}>
-            <Row md={12} className="">
-              <Col md={12}>
-                <Navbar bg="primary" variant="dark" className="toolbar">
-                  { enableSidebar && (<>
-                    <Offcanvas show={showSidebar} onHide={onSidebarClose}>
-                    <Offcanvas.Header closeButton>
-                      <Offcanvas.Title>Offcanvas</Offcanvas.Title>
-                    </Offcanvas.Header>
-                      <Offcanvas.Body>
-                        <ListGroup>
-                          <ListGroup.Item>Uno</ListGroup.Item>
-                          <ListGroup.Item>Dos</ListGroup.Item>
-                          <ListGroup.Item>Tres</ListGroup.Item>
-                          <ListGroup.Item>About</ListGroup.Item>
-                        </ListGroup>
-                      </Offcanvas.Body>
-                    </Offcanvas>
-                    <Nav.Link onClick={onSidebarOpen} className="btn-sidebar-open">&#9776;</Nav.Link>
-                  </>)}
+            <Container fluid>
+              <Row md={12} className="">
+                <Col md={12}>
+                  <Navbar bg="primary" variant="dark" className="toolbar">
+                    {enableSidebar && (
+                      <>
+                        <Offcanvas show={showSidebar} onHide={onSidebarClose}>
+                          <Offcanvas.Header closeButton>
+                            <Offcanvas.Title>Offcanvas</Offcanvas.Title>
+                          </Offcanvas.Header>
+                          <Offcanvas.Body>
+                            <ListGroup>
+                              <ListGroup.Item>Uno</ListGroup.Item>
+                              <ListGroup.Item>Dos</ListGroup.Item>
+                              <ListGroup.Item>Tres</ListGroup.Item>
+                              <ListGroup.Item>About</ListGroup.Item>
+                            </ListGroup>
+                          </Offcanvas.Body>
+                        </Offcanvas>
+                        <Nav.Link onClick={onSidebarOpen} className="btn-sidebar-open">
+                          &#9776;
+                        </Nav.Link>
+                      </>
+                    )}
 
-                  <Navbar.Brand href="#home">
-                    <img
-                        src="logo192.png"
-                        className="d-inline-block"
-                        alt="Live logo"
-                    />
-                    <span>
-                      Live Scribble
-                    </span>
-                  </Navbar.Brand>
+                    <Navbar.Brand href="#home">
+                      <img src="logo192.png" className="d-inline-block" alt="Live logo" />
+                      <span>Live Scribble</span>
+                    </Navbar.Brand>
 
-                  { enableMenubar && (<>
-                    <Nav className="me-auto">
-                      <Nav.Link href="#home">Home</Nav.Link>
-                      <Nav.Link href="#features">Features</Nav.Link>
-                    </Nav>
-                  </>)}
+                    {enableMenubar && (
+                      <>
+                        <Nav className="me-auto">
+                          <Nav.Link href="#home">Home</Nav.Link>
+                          <Nav.Link href="#features">Features</Nav.Link>
+                        </Nav>
+                      </>
+                    )}
 
-                  <Navbar.Text>
-                    <Form>
-                      <Form.Switch
-                        onChange={handleShowGearsChangeEvent}
-                        id="custom-switch"
-                        label="⚙"
-                        checked={showGears}
-                        // disabled // apply if you want the switch disabled
-                      />
-                    </Form>
-                  </Navbar.Text>
-
-                  <Navbar.Collapse className="justify-content-end">
-                    <Navbar.Text className="file-name">
-                      { trackFileName }
-                    </Navbar.Text>
-
-                    <Navbar.Text className="field-bpm">
+                    <Navbar.Text>
                       <Form>
-                        <Form.Group as={Row} className="my-0 my-auto" controlId="controlBpm">
-                          <Col md={3} className="mx-0 my-auto px-0 py-0" />
-                          <Col md={6} className="mx-0 my-auto px-0 py-0 btn-group">
-                            <div as="div" className="mx-0 my-auto px-1 py-0"><Button onClick={handleBpmDecrEvent} onPointerDown={handleSpinnerButtonPointerEvents} onPointerUp={handleSpinnerButtonPointerEvents} onPointerLeave={handleSpinnerButtonPointerEvents} onPointerEnter={handleSpinnerButtonPointerEvents} onMouseLeave={handleSpinnerButtonPointerEvents} onMouseEnter={handleSpinnerButtonPointerEvents} onMouseOut={handleSpinnerButtonPointerEvents} onMouseOver={handleSpinnerButtonPointerEvents}>-</Button></div>
-                            <Form.Control className="mx-0 my-auto px-0" type="number" size="sm" htmlSize="5" name="bpm" value={bpmValue} onChange={handleBpmChangeEvent}/>
-                            <div as="div" className="mx-0 my-auto px-0 py-0"><Button onClick={handleBpmIncrEvent} onPointerDown={handleSpinnerButtonPointerEvents} onPointerUp={handleSpinnerButtonPointerEvents} onPointerLeave={handleSpinnerButtonPointerEvents} onPointerEnter={handleSpinnerButtonPointerEvents} onMouseLeave={handleSpinnerButtonPointerEvents} onMouseEnter={handleSpinnerButtonPointerEvents} onMouseOut={handleSpinnerButtonPointerEvents} onMouseOver={handleSpinnerButtonPointerEvents}>+</Button></div>
-                          </Col>
-                          <Col md={3} className="mx-0 my-auto px-1 py-0">
-                            <Form.Label   className="mx-0 my-auto">bpm</Form.Label>
-                          </Col>
-                        </Form.Group>
+                        <Form.Switch
+                          onChange={handleShowGearsChangeEvent}
+                          id="custom-switch"
+                          label="⚙"
+                          checked={showGears}
+                          // disabled // apply if you want the switch disabled
+                        />
                       </Form>
                     </Navbar.Text>
 
-                    <Navbar.Text className="transport">
-                      <Transport isPlaying={isPlaying} />
-                    </Navbar.Text>
-                  </Navbar.Collapse>
+                    <Navbar.Collapse className="justify-content-end">
+                      <Navbar.Text className="file-name">{trackFileName}</Navbar.Text>
 
-                </Navbar>
-              </Col>
-            </Row>
-            <Row>
-              {channelsCnt && channels.map(channel => (
-                <Channel channel={channel} key={channel.idx} showGears={showGears} />
-              ))}
-              <Master count={channelsCnt && clipsCnt} />
-            </Row>
-          </Container>
-        );}}
+                      <Navbar.Text className="field-bpm">
+                        <Form>
+                          <Form.Group as={Row} className="my-0 my-auto" controlId="controlBpm">
+                            <Col md={3} className="mx-0 my-auto px-0 py-0" />
+                            <Col md={6} className="mx-0 my-auto px-0 py-0 btn-group">
+                              <div as="div" className="mx-0 my-auto px-1 py-0">
+                                <Button
+                                  onClick={handleBpmDecrEvent}
+                                  onPointerDown={handleSpinnerButtonPointerEvents}
+                                  onPointerUp={handleSpinnerButtonPointerEvents}
+                                  onPointerLeave={handleSpinnerButtonPointerEvents}
+                                  onPointerEnter={handleSpinnerButtonPointerEvents}
+                                  onMouseLeave={handleSpinnerButtonPointerEvents}
+                                  onMouseEnter={handleSpinnerButtonPointerEvents}
+                                  onMouseOut={handleSpinnerButtonPointerEvents}
+                                  onMouseOver={handleSpinnerButtonPointerEvents}
+                                >
+                                  -
+                                </Button>
+                              </div>
+                              <Form.Control
+                                className="mx-0 my-auto px-0"
+                                type="number"
+                                size="sm"
+                                htmlSize="5"
+                                name="bpm"
+                                value={bpmValue}
+                                onChange={handleBpmChangeEvent}
+                              />
+                              <div as="div" className="mx-0 my-auto px-0 py-0">
+                                <Button
+                                  onClick={handleBpmIncrEvent}
+                                  onPointerDown={handleSpinnerButtonPointerEvents}
+                                  onPointerUp={handleSpinnerButtonPointerEvents}
+                                  onPointerLeave={handleSpinnerButtonPointerEvents}
+                                  onPointerEnter={handleSpinnerButtonPointerEvents}
+                                  onMouseLeave={handleSpinnerButtonPointerEvents}
+                                  onMouseEnter={handleSpinnerButtonPointerEvents}
+                                  onMouseOut={handleSpinnerButtonPointerEvents}
+                                  onMouseOver={handleSpinnerButtonPointerEvents}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                            </Col>
+                            <Col md={3} className="mx-0 my-auto px-1 py-0">
+                              <Form.Label className="mx-0 my-auto">bpm</Form.Label>
+                            </Col>
+                          </Form.Group>
+                        </Form>
+                      </Navbar.Text>
+
+                      <Navbar.Text className="transport">
+                        <Transport isPlaying={isPlaying} />
+                      </Navbar.Text>
+                    </Navbar.Collapse>
+                  </Navbar>
+                </Col>
+              </Row>
+              <Row>
+                {channelsCnt &&
+                  channels.map((channel) => <Channel channel={channel} key={channel.idx} showGears={showGears} />)}
+                <Master count={channelsCnt && clipsCnt} />
+              </Row>
+            </Container>
+          );
+        }}
       </Query>
     </ApolloProvider>
   );
