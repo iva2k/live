@@ -29,14 +29,9 @@ const Note = () => {
         break;
     }
   };
+  const cls = ptn === '-' ? 'noteOff' : 'noteOn';
   const comp = (
-    <div
-      onKeyDown={handleKeyDown}
-      onClick={onClickHandler}
-      role="button"
-      tabIndex={0}
-      className="noteCel {ptn === '-' ? 'noteOff' : 'noteOn'}"
-    />
+    <div onKeyDown={handleKeyDown} onClick={onClickHandler} role="button" tabIndex={0} className={`noteCel ${cls}`} />
   );
   return comp;
 };

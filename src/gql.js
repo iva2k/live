@@ -9,6 +9,7 @@ export const GET_DATA = gql`
       volume
       clips @client {
         clipStr
+        pattern
       }
     }
     isPlaying @client

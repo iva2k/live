@@ -3,10 +3,12 @@ import React from 'react';
 // import { Row, Col } from 'react-bootstrap';
 import Note from './Note';
 
-const Editor = ({ noteCount = 4 }) => {
+const Editor = (props) => {
+  const { clip } = props;
+  const noteCount = clip.pattern?.length || 4;
   const noteComps = [];
   for (let i = 0; i < noteCount; i += 1) {
-    noteComps.push(<Note />);
+    noteComps.push(<Note key={i} />);
   }
 
   return (
@@ -23,6 +25,7 @@ const Editor = ({ noteCount = 4 }) => {
       </Row> */}
       <div className="menu" />
       <div className="ptn">{noteComps}</div>
+      <div className="pattern-string">{clip.pattern}</div>
     </section>
   );
 };

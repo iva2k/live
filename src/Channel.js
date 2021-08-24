@@ -17,6 +17,7 @@ function Channel({ channel, showGears }) {
             const clip = { ...c, idx };
             clip.activeClipIdx = channel.activeClipIdx;
             clip.channelIdx = channel.idx;
+            clip.channelName = channel.name;
             return <Clip clip={clip} key={clip.idx} showGears={showGears} />;
           })}
         <div className="volumeSlider">

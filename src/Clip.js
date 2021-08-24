@@ -73,10 +73,12 @@ function Clip(props) {
   const getModal = () => (
     <Modal show={showModal} onHide={() => setShowModal(false)}>
       <Modal.Header closeButton>
-        <Modal.Title>Edit clip</Modal.Title>
+        <Modal.Title>
+          Edit Clip {clip.idx} Channel {clip.channelIdx} {clip.channelName}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Editor />
+        <Editor clip={clip} />
         {/* <textarea
             id="clipCode"
             onChange={e => setClipStr(e.target.value)}
