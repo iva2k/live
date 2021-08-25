@@ -84,7 +84,7 @@ input[type='range'][orient='vertical'] {
 }
 
 .offcanvas {
-  margin-top: 68px;
+  margin-top: 0.75rem;
 }
 
 .toolbar.navbar {
@@ -99,13 +99,15 @@ input[type='range'][orient='vertical'] {
   padding-top: 0;
 }
 
-.toolbar .btn-sidebar-open {
+.toolbar .btn-sidebar-open,
+.toolbar .btn-sidebar-close {
   margin-left: 0.5rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
 
-.toolbar .navbar-brand img {
+.toolbar .navbar-brand img,
+.offcanvas .navbar-brand img {
   /* width: 32px; */
   height: 32px;
   margin-left: 0.5rem;

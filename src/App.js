@@ -21,6 +21,10 @@ import getResolvers from './resolvers';
 // import trackRaw from './tracks/half';
 import trackRaw from './tracks/final';
 
+const appVersion = 'v0.0.1'; // TODO: extract from package.json (using Webpack plugins?)
+const appRelease = 'build-2021-0824';
+const appCopyright = '(c) 2021';
+
 const trackFileName = 'final.js';
 const track = {
   ...trackRaw,
@@ -75,8 +79,8 @@ const repeatingBtnSlowTimeMs = 200;
 const repeatingBtnFastTimeMs = 100;
 const repeatingBtnFastDelayMs = 2000;
 
-const enableSidebar = false;
-const enableMenubar = false;
+const enableSidebar = false; // WIP
+const enableMenubar = false; // WIP
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -207,9 +211,34 @@ function App() {
                     {enableSidebar && (
                       <>
                         <Offcanvas show={showSidebar} onHide={onSidebarClose}>
-                          <Offcanvas.Header closeButton>
-                            <Offcanvas.Title>Offcanvas</Offcanvas.Title>
-                          </Offcanvas.Header>
+                          <Container fluid>
+                            <Row md={12} className="mb-0">
+                              <Col md={12}>
+                                <Navbar bg="primary" variant="dark" className="toolbar">
+                                  <Button onClick={onSidebarClose} className="navbar-toggler-custom btn-sidebar-close">
+                                    <span className="navbar-toggler-icon" />
+                                  </Button>
+                                  <Navbar.Brand href="#home">
+                                    <img src="logo192.png" className="d-inline-block" alt="Live logo" />
+                                    <span>Live Scribble</span>
+                                  </Navbar.Brand>
+                                  <Navbar.Text>{appVersion}</Navbar.Text>
+                                </Navbar>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col className="me-1">
+                                <p className="text-start fst-italic text-muted">
+                                  <small>{appCopyright}</small>
+                                </p>
+                              </Col>
+                              <Col className="me-1">
+                                <p className="text-end fst-italic text-muted">
+                                  <small>{appRelease}</small>
+                                </p>
+                              </Col>
+                            </Row>
+                          </Container>
                           <Offcanvas.Body>
                             <ListGroup>
                               <ListGroup.Item>Uno</ListGroup.Item>
