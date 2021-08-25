@@ -219,9 +219,9 @@ function App() {
                             </ListGroup>
                           </Offcanvas.Body>
                         </Offcanvas>
-                        <Nav.Link onClick={onSidebarOpen} className="btn-sidebar-open">
-                          &#9776;
-                        </Nav.Link>
+                        <Button onClick={onSidebarOpen} className="navbar-toggler-custom btn-sidebar-open">
+                          <span className="navbar-toggler-icon" />
+                        </Button>
                       </>
                     )}
 
@@ -246,7 +246,6 @@ function App() {
                           id="custom-switch"
                           label="⚙"
                           checked={showGears}
-                          // disabled // apply if you want the switch disabled
                         />
                       </Form>
                     </Navbar.Text>

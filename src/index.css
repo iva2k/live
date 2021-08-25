@@ -100,13 +100,15 @@ input[type='range'][orient='vertical'] {
 }
 
 .toolbar .btn-sidebar-open {
-  padding-right: 0;
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .toolbar .navbar-brand img {
   /* width: 32px; */
   height: 32px;
-  margin-left: 0.75rem;
+  margin-left: 0.5rem;
   margin-right: 0.75rem;
   vertical-align: middle;
 }
