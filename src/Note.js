@@ -29,9 +29,9 @@ const Note = () => {
         break;
     }
   };
-  const cls = ptn === '-' ? 'noteOff' : 'noteOn';
+  const cls = ptn === '-' ? 'note-off' : 'note-on';
   const comp = (
-    <div onKeyDown={handleKeyDown} onClick={onClickHandler} role="button" tabIndex={0} className={`noteCel ${cls}`} />
+    <div onKeyDown={handleKeyDown} onClick={onClickHandler} role="button" tabIndex={0} className={`note-cell ${cls}`} />
   );
   return comp;
 };

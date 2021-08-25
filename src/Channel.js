@@ -20,7 +20,7 @@ function Channel({ channel, showGears }) {
             clip.channelName = channel.name;
             return <Clip clip={clip} key={clip.idx} showGears={showGears} />;
           })}
-        <div className="volumeSlider">
+        <div className="volume-slider">
           <Mutation mutation={SET_VOLUME}>
             {(setVolume /* , { data, loading, error } */) => (
               <input

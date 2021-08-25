@@ -29,7 +29,7 @@ function Master({ count }) {
             </div>
           )),
         ]}
-        <div className="volumeSlider" />
+        <div className="volume-slider" />
         <h6 className="text-center">MASTER</h6>
       </Col>
     </>

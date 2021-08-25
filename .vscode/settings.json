@@ -30,5 +30,8 @@
   "eslint.lintTask.options": "-c .eslintrc --ignore-path .eslintignore src",
   "prettier.singleQuote": true,
   "stylelint.enable": true,
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
   "terminal.integrated.scrollback": 50000
 }

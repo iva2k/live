@@ -60,6 +60,34 @@
       ],
       "label": "npm: lint:fix",
       "detail": "lint fix"
+    },
+    {
+      "type": "npm",
+      "script": "lint:css:fix",
+      "problemMatcher": {
+        "owner": "stylelint",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": [
+          {
+            "regexp": "^([^\\s].*)$",
+            "file": 1
+          },
+          {
+            "regexp": "^\\s+(\\d+):(\\d+)\\s+(✖)\\s+(.+)\\s(\\S+)\\s*(([\\n\\r]+\\s\\s\\s+(\\D.*))*)$",
+            "line": 1,
+            "column": 2,
+            "severity": 3,
+            "message": 4,
+            "code": 5,
+            "loop": true
+          }
+        ]
+      },
+      "label": "npm: lint:css:fix",
+      "detail": "style fix"
     }
   ],
   "inputs": [
