@@ -48,8 +48,11 @@ const PlayOnJZZ = (options) => {
       return new Promise((resolve, reject) => {
         JZZ()
           .openMidiOut('Web Audio')
-          .or('Cannot open MIDI Out port')
-          .then((midiPort) => {
+          .or((e) => {
+            const err = new Error(`${e} Cannot open MIDI Out port`);
+            reject(err);
+          })
+          .and((midiPort) => {
             _instrument = midiPort;
             if (options.program) {
               _program = options.program;
@@ -57,8 +60,7 @@ const PlayOnJZZ = (options) => {
             }
             resolve();
             return null;
-          })
-          .catch(reject);
+          });
       });
     },
     stop: () => {
