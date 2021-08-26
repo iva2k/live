@@ -80,3 +80,7 @@ This section has moved here: <https://facebook.github.io/create-react-app/docs/t
 ## Project Structure
 
 See <https://medium.com/hackernoon/the-100-correct-way-to-structure-a-react-app-or-why-theres-no-such-thing-3ede534ef1ed>
+
+## External Goodies
+
+Icons Search <https://react-icons.github.io/react-icons/search?q=play>

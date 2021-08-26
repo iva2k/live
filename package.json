@@ -11,6 +11,8 @@
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.0-beta.6",
     "react-dom": "^17.0.2",
+    "react-dropzone": "^11.3.4",
+    "react-icons": "^4.2.0",
     "react-scripts": "^4.0.3",
     "scribbletune": "^4.1.0",
     "soundfont-player": "^0.12.0",

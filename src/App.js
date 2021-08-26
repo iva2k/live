@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-props-no-spreading */
+import { ImFileMusic, FiSave } from 'react-icons/all';
 import React, { useState } from 'react';
 import { Container, Button, Row, Col } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
@@ -9,6 +11,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { Query } from '@apollo/client/react/components';
 import * as Tone from 'tone';
 
+import Dropzone, { useDropzone } from 'react-dropzone';
 import { GET_DATA, WRITE_DATA } from './gql';
 import Transport from './Transport';
 import Channel from './Channel';
@@ -25,10 +28,51 @@ const appVersion = 'v0.0.1'; // TODO: extract from package.json (using Webpack p
 const appRelease = 'build-2021-0824';
 const appCopyright = '(c) 2021';
 
-const trackFileName = 'final.js';
-const track = {
-  ...trackRaw,
-  channels: trackRaw.channels.map((ch, idx) => {
+function MyDropzone(props) {
+  const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
+    // Disable click and keydown behavior
+    noClick: true,
+    noKeyboard: true,
+  });
+
+  const files = acceptedFiles.map((file) => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
+  console.log("react-dropzone getRootProps({ className: 'dropzone' })=%o", getRootProps({ className: 'dropzone' }));
+
+  console.log('react-dropzone getInputProps()=%o', getInputProps());
+  // react-dropzone getInputProps()={accept: undefined, multiple: true, type: 'file', style: {…}, onChange: ƒ, …}
+  /*
+accept: undefined
+autoComplete: "off"
+multiple: true
+onChange: ƒ (event)
+onClick: ƒ (event)
+ref: {current: input}
+style: {display: "none"}
+tabIndex: -1
+type: "file"
+[[Prototype]]: Object
+
+ */
+  return (
+    <div className="container">
+      <div {...getRootProps({ className: 'dropzone' })}>
+        <input {...getInputProps()} />
+        <p>Drag &lsquo;n&rsquo; drop some files here</p>
+        <button type="button" onClick={open}>
+          Open File Dialog
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const processTrack = (trackIn) => ({
+  ...trackIn,
+  channels: trackIn.channels.map((ch, idx) => {
     if (ch.external) {
       ch.external = {
         ...ch.external,
@@ -48,9 +92,12 @@ const track = {
       idx,
     };
   }),
-};
+});
 
 window.Tone = Tone; // For the scribbletune lib to pick up the instance.
+
+const trackFileName = 'final.js';
+const track = processTrack(trackRaw);
 
 const cache = new InMemoryCache();
 const client = new ApolloClient({
@@ -80,13 +127,13 @@ const repeatingBtnFastTimeMs = 100;
 const repeatingBtnFastDelayMs = 2000;
 
 const enableSidebar = false; // WIP
-const enableMenubar = false; // WIP
+const enableMenubar = true; // WIP
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [bpmValue, setBpmValue] = useState(120.0);
-  // TODO: connect bpm to scribbltune
+  // TODO: connect bpm to scribbletune
 
   const onSidebarClose = () => setShowSidebar(false);
   const onSidebarOpen = () => setShowSidebar(true);
@@ -96,6 +143,9 @@ function App() {
   const handleBpmChangeEvent = (evt) => {
     setBpmValue(+evt.target.value || bpmValue); // Primitive validation // TODO: Better validations (range)
   };
+
+  const currentFile = false; // WIP
+  const currentFileIsDirty = true; // WIP
 
   // Handler for mouse/pointer tracking in number spinner control (bpm)
   // Produce repeating clicks action on the button while mouse is being held down.
@@ -191,6 +241,15 @@ function App() {
     // console.log('handleBpmIncrEvent() %o', bpmValue);
   };
 
+  const onFileOpen = (files) => {
+    console.log('onFileOpen() files=%o', files);
+    // TODO
+  };
+  const handleFileSave = () => {
+    console.log('onFileSave()');
+    // TODO
+  };
+
   let channelsCnt;
   let clipsCnt;
   return (
@@ -280,7 +339,36 @@ function App() {
                     </Navbar.Text>
 
                     <Navbar.Collapse className="justify-content-end">
-                      <Navbar.Text className="file-name">{trackFileName}</Navbar.Text>
+                      <Nav className="file">
+                        <Dropzone onDrop={(acceptedFiles) => onFileOpen(acceptedFiles)}>
+                          {({ getRootProps, getInputProps, isDragActive }) => (
+                            <div {...getRootProps()}>
+                              <Nav.Link className="file-name">
+                                <input {...getInputProps()} />
+
+                                {
+                                  // TODO: untangle
+                                  // eslint-disable-next-line no-nested-ternary
+                                  isDragActive ? (
+                                    '> Drop File Here <'
+                                  ) : trackFileName ? (
+                                    <>
+                                      <ImFileMusic size="1.25rem" /> {trackFileName}
+                                    </>
+                                  ) : (
+                                    'Open File'
+                                  )
+                                }
+                              </Nav.Link>
+                            </div>
+                          )}
+                        </Dropzone>
+                        {currentFileIsDirty && (
+                          <Nav.Link className="file-dirty" onClick={handleFileSave}>
+                            <FiSave size="1.25rem" /> Save
+                          </Nav.Link>
+                        )}
+                      </Nav>
 
                       <Navbar.Text className="field-bpm">
                         <Form>

@@ -62,6 +62,7 @@ const getResolvers = (track) => {
 
   return {
     Mutation: {
+      // TODO: local resolvers are deprecated (since @apollo/client@3), should change to local-only fields https://www.apollographql.com/docs/react/local-state/managing-state-with-field-policies/
       startStopTrack: (_root, { isPlaying }, { cache }) => {
         const existingData = cache.readQuery({
           query: GET_DATA,
@@ -90,6 +91,7 @@ const getResolvers = (track) => {
           query: WRITE_DATA,
           data,
         });
+        // TODO: use cache.modify() for faster updates (since @apollo/client@3)
         return null;
       },
 
