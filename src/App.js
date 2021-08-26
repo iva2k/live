@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
+
 import { ImFileMusic, FiSave } from 'react-icons/all';
 import React, { useState } from 'react';
 import { Container, Button, Row, Col } from 'react-bootstrap';
@@ -10,6 +11,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { Query } from '@apollo/client/react/components';
 import * as Tone from 'tone';
+import { Session } from 'scribbletune/browser';
 
 import Dropzone, { useDropzone } from 'react-dropzone';
 import { GET_DATA, WRITE_DATA } from './gql';
@@ -94,16 +96,73 @@ const processTrack = (trackIn) => ({
   }),
 });
 
+const getSession = (trackIn) => {
+  let countClipStrClipsUsed = 0;
+  let countPatternClipsUsed = 0;
+  const channels = trackIn.channels.map((ch) => {
+    const channelClips = ch.clips.map((cl, idx) => {
+      try {
+        if (cl.pattern) {
+          countPatternClipsUsed += 1;
+        } else if (cl.clipStr) {
+          countClipStrClipsUsed += 1;
+          const clipObj = JSON.parse(cl.clipStr);
+          [
+            'pattern',
+            'notes',
+            'randomNotes',
+            'dur',
+            'subdiv',
+            'shuffle',
+            'arpegiate',
+            'amp',
+            'sizzle',
+            'accent',
+            'accentLow',
+            'sizzleReps',
+            'durations',
+            // 'offlineRendering', 'offlineRenderingCallback',
+          ].forEach((key) => {
+            if (clipObj[key]) {
+              cl[key] = clipObj[key];
+            }
+          });
+          if (!clipObj['pattern']) {
+            console.log('Channel %o clip #%o uses clipStr but has no pattern', ch.name, idx);
+          }
+        }
+      } catch (e) {
+        if (cl.clipStr !== "''") {
+          console.log('Channel %o clip #%o Error %o', ch.name, idx, e);
+        }
+      }
+      return cl;
+    });
+    console.log(
+      'Channel %o has %o clips with clipStr and %o clips with pattern',
+      ch.name,
+      countClipStrClipsUsed,
+      countPatternClipsUsed
+    );
+    ch.clips = channelClips;
+    return ch;
+  });
+  const session = new Session(channels);
+  Tone.Transport.bpm.value = 138; // TODO: Implement correctly, make settable by UI in runtime.
+  return session;
+};
+
 window.Tone = Tone; // For the scribbletune lib to pick up the instance.
 
 const trackFileName = 'final.js';
 const track = processTrack(trackRaw);
+const trackSession = getSession(track);
 
 const cache = new InMemoryCache();
 const client = new ApolloClient({
   // uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
   cache,
-  resolvers: getResolvers(track),
+  resolvers: getResolvers(trackSession),
 });
 
 cache.writeQuery({

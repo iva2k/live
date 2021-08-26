@@ -1,51 +1,8 @@
 // v3.3.0 import { Session } from 'scribbletune';
-import { Session } from 'scribbletune/browser';
-import * as Tone from 'tone';
 import { GET_DATA, WRITE_DATA } from './gql';
 
-const getResolvers = (track) => {
-  Tone.Transport.bpm.value = 138;
-
-  const channels = track.channels.map((ch) => {
-    const channelClips = ch.clips.map((cl, idx) => {
-      try {
-        if (cl.clipStr) {
-          /* eslint-disable */
-          let clipObj = JSON.parse(cl.clipStr);
-          /* eslint-enable */
-          [
-            'pattern',
-            'notes',
-            'randomNotes',
-            'dur',
-            'subdiv',
-            'shuffle',
-            'arpegiate',
-            'amp',
-            'sizzle',
-            'accent',
-            'accentLow',
-            'sizzleReps',
-            'durations',
-            // 'offlineRendering', 'offlineRenderingCallback',
-          ].forEach((key) => {
-            if (clipObj[key]) {
-              cl[key] = clipObj[key];
-            }
-          });
-        }
-      } catch (e) {
-        if (cl.clipStr !== "''") {
-          console.log('Channel %o clip #%o Error %o', ch.name, idx, e);
-        }
-      }
-
-      return cl;
-    });
-    ch.clips = channelClips;
-    return ch;
-  });
-  const trackSession = new Session(channels);
+const getResolvers = (trackSession) => {
+  // TODO: Refactor such that trackSession is not used here. Move all trackSession operations into a proper Apollo downstream subsccribers.
 
   const setChannelVolume = (channelIdx, volume) => {
     // Change volume of the channel
