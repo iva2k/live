@@ -46,17 +46,18 @@ const PlayOnJZZ = (options) => {
           });
       }
       return new Promise((resolve, reject) => {
+        // eslint-disable-next-line promise/catch-or-return
         JZZ()
           .openMidiOut('Web Audio')
           .or((e) => {
             const err = new Error(`${e} Cannot open MIDI Out port`);
             reject(err);
           })
-          .and((midiPort) => {
+          .then((midiPort) => {
             _instrument = midiPort;
             if (options.program) {
               _program = options.program;
-              _instrument.program(_ch, _program);
+              _instrument?.program(_ch, _program);
             }
             resolve();
             return null;
