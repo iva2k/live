@@ -205,7 +205,30 @@ const trackFileName = 'final.js';
 const track = processTrack(trackRaw);
 const trackSession = getSession(track);
 
-const resolvers = getResolvers(trackSession);
+const mutationObservers = {
+  setChannelVolume: (channelIdx, volume) => {
+    // Change volume of the channel
+    trackSession.channels[channelIdx].setVolume(volume);
+  },
+
+  startChannelClip: (channelIdx, clipIdx) => {
+    trackSession.channels[channelIdx].startClip(clipIdx);
+  },
+
+  stopChannelClip: (channelIdx, clipIdx) => {
+    trackSession.channels[channelIdx].stopClip(clipIdx);
+  },
+
+  startTransport: () => {
+    trackSession?.startTransport();
+  },
+
+  stopTransport: () => {
+    trackSession?.stopTransport();
+  },
+};
+
+const resolvers = getResolvers(mutationObservers);
 const stateCache = new InMemoryCache({
   typePolicies: {
     Channel: {
