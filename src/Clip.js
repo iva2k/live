@@ -7,17 +7,8 @@ import Editor from './Editor';
 function Clip(props) {
   const { clip, showGears } = props;
   const [showModal, setShowModal] = useState(false);
-  // const [isPlaying, setIsPlaying] = useState(false);
 
-  // const [clipStr, setClipStr] = useState(clip.clipStr || '');
-  const [clipStr] = useState(clip.clipStr || '');
-  // const [pattern, setPattern] = useState(clip.pattern || '');
-  const [pattern] = useState(clip.pattern || '');
-
-  // const [notes, setNotes] = useState(clip.notes || '');
-  // const [randomNotes, setRandomNotes] = useState(clip.randomNotes || '');
-  // const [subdiv, setSubdiv] = useState(clip.subdiv || '4n');
-  // const [dur, setDur] = useState(clip.dur || '4n');
+  // console.log('REDRAW: Channel %o Clip %o clip.pattern=%o', clip.channelIdx, clip.idx, clip.pattern);
 
   // useEffect(() => {
   //   const clipCode = document.getElementById('clipCode');
@@ -36,7 +27,7 @@ function Clip(props) {
     setShowModal(true);
   };
   const getClipButton = () => {
-    if (!pattern && clipStr === "''") {
+    if (!clip.pattern && clip.clipStr === "''") {
       return (
         <Button variant="outline-secondary" onContextMenu={handleRightClick}>
           &#x25CB;
@@ -82,7 +73,7 @@ function Clip(props) {
         {/* <textarea
             id="clipCode"
             onChange={e => setClipStr(e.target.value)}
-            value={clipStr}
+            value={clip.clipStr}
           /> */}
       </Modal.Body>
     </Modal>
@@ -93,7 +84,7 @@ function Clip(props) {
       <ButtonGroup>
         {getClipButton()}
         <Button
-          variant={pattern || clipStr ? 'secondary' : 'outline-secondary'}
+          variant={clip.pattern || clip.clipStr ? 'secondary' : 'outline-secondary'}
           onClick={() => setShowModal(true)}
           dangerouslySetInnerHTML={{
             __html: '⚙',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 // import PropTypes from 'prop-types'; // npm install --save prop-types
 import { Col } from 'react-bootstrap';
 import { useQuery } from '@apollo/client';
@@ -27,7 +27,7 @@ function useScribbletuneGetVolume(channelIdx, store) {
 }
 
 function Channel({ channel, showGears }) {
-  const [volume, setVolumeState] = useState(channel.volume || 0.0);
+  // console.log('REDRAW: Channel %o', channel);
   useScribbletuneGetVolume(channel.idx); // TODO: decide if using volume here to set scribbletune channel volume is acceptable (10ms later than resolvers.js)
   return (
     <>
@@ -49,10 +49,9 @@ function Channel({ channel, showGears }) {
                 orient="vertical"
                 min="-60"
                 max="6"
-                value={volume}
+                value={channel.volume}
                 step="1"
                 onChange={(e) => {
-                  setVolumeState(e.target.value);
                   setVolume({
                     variables: {
                       channelIdx: channel.idx,
