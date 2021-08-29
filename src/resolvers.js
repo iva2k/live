@@ -1,9 +1,13 @@
 // v3.3.0 import { Session } from 'scribbletune';
-import * as Tone from 'tone';
 import { GET_DATA, WRITE_DATA } from './gql';
 
 const getResolvers = (mutationObservers) => ({
+  // mutationObservers object contains callback functions for direct control of the track session and transport.
+  // Alternative method to observe ApolloClient query data has additional latency of ~10ms.
+
   Query: {
+    // this resolver is required for ApolloClient to get separate channels from cache.
+    // Though it needs a direct call from typePolicy.
     channels: (ref, args, { cache }) => {
       if (ref) return ref;
       const data = [];
@@ -11,14 +15,14 @@ const getResolvers = (mutationObservers) => ({
         const existingData = cache.readQuery({
           query: GET_DATA,
         });
-        existingData.channels.forEach((ch) => {
-          if (ch.idx === args.idx) {
-            data.push(ch);
-            // ? break;
-          }
-        });
+        // existingData.channels.forEach((ch) => {
+        //   if (ch.idx === args.idx) {
+        //     data.push(ch);
+        //   }
+        // });
+        data.push(existingData.channels[args.idx]);
       }
-      console.log('resolvers::channels(%o) return=%o', args, data);
+      // console.log('resolvers::channels(%o) return=%o', args, data);
       return data;
     },
   },
@@ -55,15 +59,15 @@ const getResolvers = (mutationObservers) => ({
       // );
 
       // // If "Start" is requested then start it only if not already started
-      // if (!existingData.isPlaying && isPlaying) {
-      //   console.log('mutationResolverStartStopTrack(START) @%o', Tone.now());
-      //   mutationObservers.startTransport();
-      // }
+      if (!existingData.isPlaying && isPlaying) {
+        // console.log('mutationResolverStartStopTrack(START) @%o', Tone.now());
+        mutationObservers.startTransport();
+      }
 
       // If "Stop" is requested then start it only if not already started
       if (existingData.isPlaying && !isPlaying) {
-        // Stop any playing clip as well
         data.channels = existingData.channels.map((ch) =>
+          // No need to stop any playing clips - stopping transport will effectively cancel all future events
           // mutationObservers.stopChannelClip(ch.idx, ch.activeClipIdx);
           ({ ...ch, activeClipIdx: -1 })
         );
@@ -87,9 +91,9 @@ const getResolvers = (mutationObservers) => ({
         mutationObservers.startTransport();
       }
 
-      const newChannels = existingData.channels.map((ch) => {
-        mutationObservers.startChannelClip(ch.idx, activeClipIdx);
-        mutationObservers.setChannelVolume(ch.idx, ch.volume);
+      const newChannels = existingData.channels.map((ch, idx) => {
+        mutationObservers.startChannelClip(idx, activeClipIdx);
+        mutationObservers.setChannelVolume(idx, ch.volume);
         return {
           ...ch,
           activeClipIdx,
@@ -106,9 +110,11 @@ const getResolvers = (mutationObservers) => ({
       const existingData = cache.readQuery({
         query: GET_DATA,
       });
-      const newChannels = existingData.channels.map((ch) => {
+      // Stop the active clip on the channelIdx passed in this method
+      mutationObservers.stopChannelClip(channelIdx, existingData.channels[channelIdx].activeClipIdx);
+      const newChannels = existingData.channels.map((ch, idx) => {
         const newChannel = { ...ch };
-        if (ch.idx === channelIdx) {
+        if (idx === channelIdx) {
           newChannel.activeClipIdx = -1;
         }
         return newChannel;
@@ -117,9 +123,6 @@ const getResolvers = (mutationObservers) => ({
         query: WRITE_DATA,
         data: { channels: newChannels },
       });
-
-      // Stop the active clip on the channelIdx passed in this method
-      mutationObservers.stopChannelClip(channelIdx, existingData.channels[channelIdx].activeClipIdx);
       return null;
     },
 
@@ -128,11 +131,11 @@ const getResolvers = (mutationObservers) => ({
         query: GET_DATA,
       });
       let volume;
-      const newChannels = existingData.channels.map((ch) => {
+      const newChannels = existingData.channels.map((ch, idx) => {
         const newChannel = {
           ...ch,
         };
-        if (ch.idx === channelIdx) {
+        if (idx === channelIdx) {
           newChannel.activeClipIdx = clipId;
           // play the new clip
           volume = ch.volume;
