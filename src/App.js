@@ -1,5 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
+import { gql, ApolloClient, ApolloProvider, InMemoryCache, useQuery } from '@apollo/client';
+import { Query } from '@apollo/client/react/components';
+import { onError } from '@apollo/client/link/error';
 import { ImFileMusic, FiSave } from 'react-icons/all';
 import React, { useState } from 'react';
 import { Container, Button, Row, Col } from 'react-bootstrap';
@@ -8,13 +11,16 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
-import { Query } from '@apollo/client/react/components';
 import * as Tone from 'tone';
 import { Session } from 'scribbletune/browser';
 
 import Dropzone, { useDropzone } from 'react-dropzone';
-import { GET_DATA, WRITE_DATA } from './gql';
+import { ApolloLink } from '@apollo/client/core';
+// import { ExecutionResult } from 'graphql';
+import Observable from 'zen-observable';
+import { GET_IS_PLAYING, GET_DATA, WRITE_DATA } from './gql';
+// import { typeDefs } from './schema';
+
 import Transport from './Transport';
 import Channel from './Channel';
 import Master from './Master';
@@ -25,6 +31,47 @@ import getResolvers from './resolvers';
 // import trackRaw from './tracks/init';
 // import trackRaw from './tracks/half';
 import trackRaw from './tracks/final';
+
+/** BEGIN introspection hack rework for devtools */
+// import { ApolloLink, NextLink, Operation } from '@apollo/client/core';
+// import { ExecutionResult } from 'graphql';
+// import Observable from 'zen-observable';
+
+import introspectionResult from './schema-introspection.json';
+
+/**
+ * Serves introspection operations. For example, the Apollo Client
+ * Chrome Devtool issues an introspection operation when it opens
+ * in order to display the schema.
+ */
+
+// TODO: Simplify for js:
+// const introspectionLink = new ApolloLink((operation, forward) => {
+//   operation.setContext({ start: new Date() });
+//   return forward(operation);
+// });
+
+export class IntrospectionLink extends ApolloLink {
+  // ts: request(operation: Operation, forward?: NextLink) {
+  // eslint-disable-next-line class-methods-use-this
+  request(operation, forward) {
+    switch (operation.operationName.toLowerCase()) {
+      case 'introspectionquery':
+        // ts: return new Observable<ExecutionResult>((subscriber) => {
+        return new Observable((subscriber) => {
+          subscriber.next({ data: introspectionResult });
+          subscriber.complete();
+        });
+      default:
+        break;
+    }
+    if (forward) {
+      return forward(operation);
+    }
+    throw new Error(`Unable to handle operation ${operation.operationName}`);
+  }
+}
+/** END introspection hack rework for devtools */
 
 const appVersion = 'v0.0.1'; // TODO: extract from package.json (using Webpack plugins?)
 const appRelease = 'build-2021-0824';
@@ -97,9 +144,9 @@ const processTrack = (trackIn) => ({
 });
 
 const getSession = (trackIn) => {
-  let countClipStrClipsUsed = 0;
-  let countPatternClipsUsed = 0;
   const channels = trackIn.channels.map((ch) => {
+    let countClipStrClipsUsed = 0;
+    let countPatternClipsUsed = 0;
     const channelClips = ch.clips.map((cl, idx) => {
       try {
         if (cl.pattern) {
@@ -158,18 +205,70 @@ const trackFileName = 'final.js';
 const track = processTrack(trackRaw);
 const trackSession = getSession(track);
 
-const cache = new InMemoryCache();
+const resolvers = getResolvers(trackSession);
+const stateCache = new InMemoryCache({
+  typePolicies: {
+    Channel: {
+      keyFields: ['idx'],
+    },
+    Query: {
+      fields: {
+        channels: (ref, { args, cache }) => {
+          if (ref) return ref;
+          return resolvers.Query.channels(ref, args, { cache });
+          // resolvers.Query.x are not called by @apollo/client/@3.4.8
+        },
+      },
+    },
+  },
+});
+const introspectionLink = new IntrospectionLink();
+const defaultOptions = {
+  // The useQuery hook uses Apollo Client's watchQuery function
+  watchQuery: {
+    fetchPolicy: 'cache-only', // 'cache-and-network',
+    errorPolicy: 'all', // 'ignore',
+  },
+  query: {
+    fetchPolicy: 'cache-only', // 'network-only',
+    errorPolicy: 'all',
+  },
+  mutate: {
+    errorPolicy: 'all',
+  },
+};
 const client = new ApolloClient({
   // uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-  cache,
-  resolvers: getResolvers(trackSession),
+  cache: stateCache,
+  link: ApolloLink.from([
+    // Error handler
+    onError(({ graphQLErrors, networkError }) => {
+      if (graphQLErrors) {
+        graphQLErrors.forEach(({ message, locations, path }) =>
+          console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
+        );
+      }
+      if (networkError) {
+        console.log(`[Network error]: ${networkError}`);
+      }
+    }),
+    introspectionLink, // For debugging, forwards schema to Chrome Apollo Detools extension
+  ]),
+  // typeDefs, // typeDefs don't seem to make a difference.
+  defaultOptions,
+  resolvers,
+  // connectToDevTools: process.env.NODE_ENV !== 'production',
+  connectToDevTools: true,
 });
+console.log('DEBUG: process.env.NODE_ENV=%o', process.env.NODE_ENV);
+console.log('DEBUG: window.__APOLLO_CLIENT__=%o', window.__APOLLO_CLIENT__);
 
-cache.writeQuery({
+stateCache.writeQuery({
   query: WRITE_DATA,
   data: {
     ...track,
     isPlaying: false,
+    // isConnected: true, // Example monitoring network connection
   },
 });
 
@@ -188,11 +287,40 @@ const repeatingBtnFastDelayMs = 2000;
 const enableSidebar = false; // WIP
 const enableMenubar = true; // WIP
 
+// React hook for scribbletune transport start/stop // TODO: move to Transport.js
+function useScribbletuneIsPlaying(store) {
+  // Example of useEffect(), applies the action after DOM
+  // const [isPlaying, setIsPlaying] = useState(null);
+  // function handleStatusChange(status) {
+  //   setIsPlaying(status.isOnline);
+  // }
+  // useEffect(() => {
+  //   ChatAPI.subscribeToFriendStatus(friendID, handleStatusChange);
+  //   return () => {
+  //     ChatAPI.unsubscribeFromFriendStatus(friendID, handleStatusChange);
+  //   };
+  // });
+
+  const { loading, error, data } = useQuery(GET_IS_PLAYING, { client: store });
+  console.log('useScribbletuneIsPlaying() @%o loading=%o error=%o data=%o', Tone.now(), loading, error, data);
+  // Compare time between direct intercept (in resolvers.js) and called from React hook (here)
+  // The delay here is 10ms.
+  if (data.isPlaying) {
+    trackSession?.startTransport();
+  } else {
+    trackSession?.stopTransport();
+  }
+  return data.isPlaying;
+}
+
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [bpmValue, setBpmValue] = useState(120.0);
   // TODO: connect bpm to scribbletune
+
+  // WIP: Connect to scribbletune here instead of in resolvers.js
+  useScribbletuneIsPlaying(client);
 
   const onSidebarClose = () => setShowSidebar(false);
   const onSidebarOpen = () => setShowSidebar(true);

@@ -22,6 +22,8 @@
     "pflannery.vscode-versionlens",
     "wix.vscode-import-cost",
     "vscode-icons-team.vscode-icons",
-    "syler.sass-indented"
+    "syler.sass-indented",
+    "apollographql.vscode-apollo",
+    "kumar-harsh.graphql-for-vscode"
   ]
 }

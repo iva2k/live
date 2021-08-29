@@ -1,8 +1,9 @@
 import { scale, arp } from 'scribbletune/browser';
-import { getToneMonoSynth, samplers } from '../sounds';
-import PlayOnJZZ from '../PlayOnJZZ';
-import PlayOnSoundfontPlayer from '../PlayOnSoundfontPlayer';
-import PlayOnWebMidi from '../PlayOnWebMidi';
+import { samplers } from '../sounds';
+// import { getToneMonoSynth, samplers } from '../sounds';
+// import PlayOnJZZ from '../PlayOnJZZ';
+// import PlayOnSoundfontPlayer from '../PlayOnSoundfontPlayer';
+// import PlayOnWebMidi from '../PlayOnWebMidi';
 
 const track = {
   channels: [
@@ -432,6 +433,7 @@ const track = {
         },
       ],
     },
+    /*
     {
       name: 'Synth',
       sample: '',
@@ -593,6 +595,7 @@ const track = {
         },
       ],
     },
+/* */
   ],
 };
 

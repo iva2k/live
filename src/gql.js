@@ -1,13 +1,19 @@
 import { gql } from '@apollo/client';
 
+export const GET_IS_PLAYING = gql`
+  query queryIsPlaying {
+    isPlaying @client
+  }
+`;
+
 export const GET_DATA = gql`
-  query {
+  query queryGetData {
     channels @client {
       idx
       activeClipIdx
       name
       volume
-      clips @client {
+      clips {
         clipStr
         pattern
       }
@@ -16,39 +22,47 @@ export const GET_DATA = gql`
   }
 `;
 
+export const GET_VOLUME = gql`
+  query queryChannelVolume($channelIdx: Int) {
+    channels(idx: $channelIdx) @client {
+      volume
+    }
+  }
+`;
+
 export const WRITE_DATA = gql`
-  query {
+  query queryWriteData {
     channels @client
     isPlaying @client
   }
 `;
 
 export const PLAY_ROW = gql`
-  mutation playRow($activeClipIdx: Number!) {
+  mutation playRow($activeClipIdx: Int!) {
     playRow(activeClipIdx: $activeClipIdx) @client
   }
 `;
 
 export const STOP_CLIP = gql`
-  mutation stopClip($channelIdx: Number!) {
+  mutation stopClip($channelIdx: Int!) {
     stopClip(channelIdx: $channelIdx) @client
   }
 `;
 
 export const PLAY_CLIP = gql`
-  mutation playClip($channelIdx: Number!, $clipId: Number!) {
+  mutation playClip($channelIdx: Int!, $clipId: Int!) {
     playClip(channelIdx: $channelIdx, clipId: $clipId) @client
   }
 `;
 
 export const START_STOP_TRACK = gql`
   mutation startStopTrack($isPlaying: Boolean!) {
-    startStopTrack(isPlaying: $isPlaying) @client
+    mutationResolverStartStopTrack(isPlaying: $isPlaying) @client
   }
 `;
 
 export const SET_VOLUME = gql`
-  mutation setVolume($channelIdx: Number!, $volume: Number!) {
+  mutation setVolume($channelIdx: Int!, $volume: Int!) {
     setVolume(channelIdx: $channelIdx, volume: $volume) @client
   }
 `;
