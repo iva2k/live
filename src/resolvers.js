@@ -64,11 +64,11 @@ const getResolvers = (mutationObservers) => ({
       if (existingData.isPlaying && !isPlaying) {
         // Stop any playing clip as well
         data.channels = existingData.channels.map((ch) =>
-          // trackSession.channels[ch.idx].stopClip(ch.activeClipIdx);
+          // mutationObservers.stopChannelClip(ch.idx, ch.activeClipIdx);
           ({ ...ch, activeClipIdx: -1 })
         );
-        console.log('mutationResolverStartStopTrack(STOP) @%o', Tone.now()); // Compare time between direct intercept (here) and called from React hook
-        // mutationObservers.stopTransport();
+        // console.log('mutationResolverStartStopTrack(STOP) @%o', Tone.now()); // Compare time between direct intercept (here) and called from React hook
+        mutationObservers.stopTransport();
       }
       cache.writeQuery({
         query: WRITE_DATA,
@@ -83,9 +83,9 @@ const getResolvers = (mutationObservers) => ({
       const existingData = cache.readQuery({
         query: GET_DATA,
       });
-      // if (!existingData.isPlaying) {
-      //   mutationObservers.startTransport();
-      // }
+      if (!existingData.isPlaying) {
+        mutationObservers.startTransport();
+      }
 
       const newChannels = existingData.channels.map((ch) => {
         mutationObservers.startChannelClip(ch.idx, activeClipIdx);

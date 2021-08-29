@@ -312,27 +312,16 @@ const enableMenubar = true; // WIP
 
 // React hook for scribbletune transport start/stop // TODO: move to Transport.js
 function useScribbletuneIsPlaying(store) {
-  // Example of useEffect(), applies the action after DOM
-  // const [isPlaying, setIsPlaying] = useState(null);
-  // function handleStatusChange(status) {
-  //   setIsPlaying(status.isOnline);
-  // }
-  // useEffect(() => {
-  //   ChatAPI.subscribeToFriendStatus(friendID, handleStatusChange);
-  //   return () => {
-  //     ChatAPI.unsubscribeFromFriendStatus(friendID, handleStatusChange);
-  //   };
-  // });
-
-  const { loading, error, data } = useQuery(GET_IS_PLAYING, { client: store });
-  console.log('useScribbletuneIsPlaying() @%o loading=%o error=%o data=%o', Tone.now(), loading, error, data);
+  // const { loading, error, data } = useQuery(GET_IS_PLAYING, { client: store });
+  const { data } = useQuery(GET_IS_PLAYING, { client: store });
+  // console.log('useScribbletuneIsPlaying() @%o loading=%o error=%o data=%o', Tone.now(), loading, error, data);
   // Compare time between direct intercept (in resolvers.js) and called from React hook (here)
   // The delay here is 10ms.
-  if (data.isPlaying) {
-    trackSession?.startTransport();
-  } else {
-    trackSession?.stopTransport();
-  }
+  // if (data.isPlaying) {
+  //   trackSession?.startTransport();
+  // } else {
+  //   trackSession?.stopTransport();
+  // }
   return data.isPlaying;
 }
 
