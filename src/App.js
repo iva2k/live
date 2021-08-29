@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
-import { gql, ApolloClient, ApolloProvider, InMemoryCache, useQuery } from '@apollo/client';
+import { ApolloClient, ApolloProvider, InMemoryCache, useQuery } from '@apollo/client';
+import { ApolloLink } from '@apollo/client/core';
 import { Query } from '@apollo/client/react/components';
 import { onError } from '@apollo/client/link/error';
 import { ImFileMusic, FiSave } from 'react-icons/all';
@@ -12,14 +13,13 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import * as Tone from 'tone';
-import { Session } from 'scribbletune/browser';
+import { Session, scale } from 'scribbletune/browser';
 
 import Dropzone, { useDropzone } from 'react-dropzone';
-import { ApolloLink } from '@apollo/client/core';
 // import { ExecutionResult } from 'graphql';
 import Observable from 'zen-observable';
 import { GET_IS_PLAYING, GET_DATA, WRITE_DATA } from './gql';
-// import { typeDefs } from './schema';
+import introspectionResult from './schema-introspection.json';
 
 import Transport from './Transport';
 import Channel from './Channel';
@@ -27,34 +27,45 @@ import Master from './Master';
 
 import getResolvers from './resolvers';
 
-// import trackRaw from './tracks/dummy';
-// import trackRaw from './tracks/init';
-// import trackRaw from './tracks/half';
-import trackRaw from './tracks/final';
+import { samplers } from './sounds';
 
-/** BEGIN introspection hack rework for devtools */
-// import { ApolloLink, NextLink, Operation } from '@apollo/client/core';
-// import { ExecutionResult } from 'graphql';
-// import Observable from 'zen-observable';
+// import exampleTrack from './tracks/dummy';
+// import exampleTrack from './tracks/init';
+// import exampleTrack from './tracks/half';
+import exampleTrackData from './tracks/final';
 
-import introspectionResult from './schema-introspection.json';
+const exampleTrackName = 'final';
+
+const appVersion = 'v0.0.1'; // TODO: extract from package.json (using Webpack plugins?)
+const appRelease = 'build-2021-0824';
+const appCopyright = '(c) 2021';
+
+const connectToDevTools = process.env.NODE_ENV !== 'production';
+
+window.Tone = Tone; // For the scribbletune lib to pick up the instance.
+window.TrackLoadMethods = {
+  // For the loadable tracks
+  fieldName: 'track',
+  scale, // from 'scribbletune/browser'
+  samplers, // from '../sounds'
+};
+
+let currentFile;
+let currentFileName;
+let currentFileText;
+let currentFileData;
+let currentFileIsDirty = true;
+let currentFileTrackSession;
 
 /**
+ * Introspection for devtools
  * Serves introspection operations. For example, the Apollo Client
  * Chrome Devtool issues an introspection operation when it opens
  * in order to display the schema.
  */
-
-// TODO: Simplify for js:
-// const introspectionLink = new ApolloLink((operation, forward) => {
-//   operation.setContext({ start: new Date() });
-//   return forward(operation);
-// });
-
-export class IntrospectionLink extends ApolloLink {
-  // ts: request(operation: Operation, forward?: NextLink) {
-  // eslint-disable-next-line class-methods-use-this
-  request(operation, forward) {
+const introspectionLink =
+  connectToDevTools &&
+  new ApolloLink((operation, forward) => {
     switch (operation.operationName.toLowerCase()) {
       case 'introspectionquery':
         // ts: return new Observable<ExecutionResult>((subscriber) => {
@@ -69,13 +80,8 @@ export class IntrospectionLink extends ApolloLink {
       return forward(operation);
     }
     throw new Error(`Unable to handle operation ${operation.operationName}`);
-  }
-}
-/** END introspection hack rework for devtools */
-
-const appVersion = 'v0.0.1'; // TODO: extract from package.json (using Webpack plugins?)
-const appRelease = 'build-2021-0824';
-const appCopyright = '(c) 2021';
+  });
+/** END introspection for devtools */
 
 function MyDropzone(props) {
   const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
@@ -119,32 +125,120 @@ type: "file"
   );
 }
 
-const processTrack = (trackIn) => ({
-  ...trackIn,
-  channels: trackIn.channels.map((ch, idx) => {
-    if (ch.external) {
-      ch.external = {
-        ...ch.external,
-        __typename: 'ExternalOutput',
-      };
-    }
-    ch.clips = ch.clips.map((c) => ({
-      pattern: '',
-      ...c,
-      ...{ clipStr: c.pattern ? JSON.stringify(c) : "''" },
-      __typename: 'Clip',
-    }));
-    return {
-      ...ch,
-      __typename: 'Channel',
-      activeClipIdx: -1,
-      idx,
-    };
-  }),
-});
+const mutationObservers = {
+  setChannelVolume: (channelIdx, volume) => {
+    currentFileTrackSession?.channels[channelIdx]?.setVolume(volume);
+  },
 
-const getSession = (trackIn) => {
-  const channels = trackIn.channels.map((ch) => {
+  startChannelClip: (channelIdx, clipIdx) => {
+    currentFileTrackSession?.channels[channelIdx]?.startClip(clipIdx);
+  },
+
+  stopChannelClip: (channelIdx, clipIdx) => {
+    currentFileTrackSession?.channels[channelIdx]?.stopClip(clipIdx);
+  },
+
+  startTransport: () => {
+    currentFileTrackSession?.startTransport();
+  },
+
+  stopTransport: () => {
+    currentFileTrackSession?.stopTransport();
+  },
+};
+
+const resolvers = getResolvers(mutationObservers);
+const stateCache = new InMemoryCache({
+  typePolicies: {
+    Channel: {
+      keyFields: ['idx'],
+    },
+    Query: {
+      fields: {
+        channels: (ref, { args, cache }) => {
+          if (ref) return ref;
+          return resolvers.Query.channels(ref, args, { cache });
+          // resolvers.Query.x are not called by @apollo/client/@3.4.8
+        },
+      },
+    },
+  },
+});
+const defaultOptions = {
+  // The useQuery hook uses Apollo Client's watchQuery function
+  watchQuery: {
+    fetchPolicy: 'cache-only', // 'cache-and-network',
+    errorPolicy: 'all', // 'ignore',
+  },
+  query: {
+    fetchPolicy: 'cache-only', // 'network-only',
+    errorPolicy: 'all',
+  },
+  mutate: {
+    errorPolicy: 'all',
+  },
+};
+const client = new ApolloClient({
+  // uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
+  cache: stateCache,
+  link: ApolloLink.from([
+    // Error handler
+    onError(({ graphQLErrors, networkError }) => {
+      if (graphQLErrors) {
+        graphQLErrors.forEach(({ message, locations, path }) =>
+          console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
+        );
+      }
+      if (networkError) {
+        console.log(`[Network error]: ${networkError}`);
+      }
+    }),
+    introspectionLink, // For debugging, forwards schema to Chrome Apollo Devtools extension
+  ]),
+  // typeDefs, // typeDefs don't seem to make a difference. Schema file in apollo.config.js and introspectionLink do.
+  defaultOptions,
+  resolvers,
+  connectToDevTools,
+});
+console.log('DEBUG: process.env.NODE_ENV=%o', process.env.NODE_ENV);
+console.log('DEBUG: window.__APOLLO_CLIENT__=%o', window.__APOLLO_CLIENT__);
+
+const openTrack = (file, fileName, fileText, fileData, cache) => {
+  currentFileTrackSession?.stopTransport();
+
+  currentFile = false;
+  currentFileName = '';
+  // currentFileName = '(none)';
+  currentFileText = '';
+  currentFileData = {};
+  currentFileIsDirty = false;
+  currentFileTrackSession = {};
+
+  const track = {
+    ...fileData,
+    channels: fileData.channels.map((ch, idx) => {
+      if (ch.external) {
+        ch.external = {
+          ...ch.external,
+          __typename: 'ExternalOutput',
+        };
+      }
+      ch.clips = ch.clips.map((c) => ({
+        pattern: '',
+        ...c,
+        ...{ clipStr: c.pattern ? JSON.stringify(c) : "''" },
+        __typename: 'Clip',
+      }));
+      return {
+        ...ch,
+        __typename: 'Channel',
+        activeClipIdx: -1,
+        idx,
+      };
+    }),
+  };
+
+  const channels = track.channels.map((ch) => {
     let countClipStrClipsUsed = 0;
     let countPatternClipsUsed = 0;
     const channelClips = ch.clips.map((cl, idx) => {
@@ -196,104 +290,25 @@ const getSession = (trackIn) => {
   });
   const session = new Session(channels);
   Tone.Transport.bpm.value = 138; // TODO: Implement correctly, make settable by UI in runtime.
-  return session;
-};
 
-window.Tone = Tone; // For the scribbletune lib to pick up the instance.
-
-const trackFileName = 'final.js';
-const track = processTrack(trackRaw);
-const trackSession = getSession(track);
-
-const mutationObservers = {
-  setChannelVolume: (channelIdx, volume) => {
-    // Change volume of the channel
-    trackSession.channels[channelIdx].setVolume(volume);
-  },
-
-  startChannelClip: (channelIdx, clipIdx) => {
-    trackSession.channels[channelIdx].startClip(clipIdx);
-  },
-
-  stopChannelClip: (channelIdx, clipIdx) => {
-    trackSession.channels[channelIdx].stopClip(clipIdx);
-  },
-
-  startTransport: () => {
-    trackSession?.startTransport();
-  },
-
-  stopTransport: () => {
-    trackSession?.stopTransport();
-  },
-};
-
-const resolvers = getResolvers(mutationObservers);
-const stateCache = new InMemoryCache({
-  typePolicies: {
-    Channel: {
-      keyFields: ['idx'],
+  cache.writeQuery({
+    query: WRITE_DATA,
+    data: {
+      ...track,
+      isPlaying: false,
+      // isConnected: true, // Example monitoring network connection
     },
-    Query: {
-      fields: {
-        channels: (ref, { args, cache }) => {
-          if (ref) return ref;
-          return resolvers.Query.channels(ref, args, { cache });
-          // resolvers.Query.x are not called by @apollo/client/@3.4.8
-        },
-      },
-    },
-  },
-});
-const introspectionLink = new IntrospectionLink();
-const defaultOptions = {
-  // The useQuery hook uses Apollo Client's watchQuery function
-  watchQuery: {
-    fetchPolicy: 'cache-only', // 'cache-and-network',
-    errorPolicy: 'all', // 'ignore',
-  },
-  query: {
-    fetchPolicy: 'cache-only', // 'network-only',
-    errorPolicy: 'all',
-  },
-  mutate: {
-    errorPolicy: 'all',
-  },
+  });
+  currentFile = file;
+  currentFileName = fileName;
+  currentFileText = fileText;
+  currentFileData = fileData;
+  currentFileIsDirty = false;
+  currentFileName = fileName;
+  currentFileTrackSession = session;
 };
-const client = new ApolloClient({
-  // uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-  cache: stateCache,
-  link: ApolloLink.from([
-    // Error handler
-    onError(({ graphQLErrors, networkError }) => {
-      if (graphQLErrors) {
-        graphQLErrors.forEach(({ message, locations, path }) =>
-          console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
-        );
-      }
-      if (networkError) {
-        console.log(`[Network error]: ${networkError}`);
-      }
-    }),
-    introspectionLink, // For debugging, forwards schema to Chrome Apollo Detools extension
-  ]),
-  // typeDefs, // typeDefs don't seem to make a difference.
-  defaultOptions,
-  resolvers,
-  // connectToDevTools: process.env.NODE_ENV !== 'production',
-  connectToDevTools: true,
-});
-console.log('DEBUG: process.env.NODE_ENV=%o', process.env.NODE_ENV);
-console.log('DEBUG: window.__APOLLO_CLIENT__=%o', window.__APOLLO_CLIENT__);
 
-stateCache.writeQuery({
-  query: WRITE_DATA,
-  data: {
-    ...track,
-    isPlaying: false,
-    // isConnected: true, // Example monitoring network connection
-  },
-});
+openTrack(null, exampleTrackName, '', exampleTrackData, stateCache);
 
 // Globals for mouse/pointer tracking in number spinner control (bpm)
 // TODO: Move to a separate context, make spinner component
@@ -310,22 +325,22 @@ const repeatingBtnFastDelayMs = 2000;
 const enableSidebar = false; // WIP
 const enableMenubar = true; // WIP
 
-// React hook for scribbletune transport start/stop // TODO: move to Transport.js
+// React hook for scribbletune transport start/stop // TODO: remove
 function useScribbletuneIsPlaying(store) {
   // const { loading, error, data } = useQuery(GET_IS_PLAYING, { client: store });
   const { data } = useQuery(GET_IS_PLAYING, { client: store });
-  // console.log('useScribbletuneIsPlaying() @%o loading=%o error=%o data=%o', Tone.now(), loading, error, data);
   // Compare time between direct intercept (in resolvers.js) and called from React hook (here)
   // The delay here is 10ms.
   // if (data.isPlaying) {
-  //   trackSession?.startTransport();
+  //   currentFileTrackSession?.startTransport();
   // } else {
-  //   trackSession?.stopTransport();
+  //   currentFileTrackSession?.stopTransport();
   // }
   return data.isPlaying;
 }
 
 function App() {
+  // console.log('REDRAW: App');
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [bpmValue, setBpmValue] = useState(120.0);
@@ -342,9 +357,6 @@ function App() {
   const handleBpmChangeEvent = (evt) => {
     setBpmValue(+evt.target.value || bpmValue); // Primitive validation // TODO: Better validations (range)
   };
-
-  const currentFile = false; // WIP
-  const currentFileIsDirty = true; // WIP
 
   // Handler for mouse/pointer tracking in number spinner control (bpm)
   // Produce repeating clicks action on the button while mouse is being held down.
@@ -440,9 +452,36 @@ function App() {
     // console.log('handleBpmIncrEvent() %o', bpmValue);
   };
 
+  const loadScript = (urlOrFilePath, fileName, fieldName, onLoad) => {
+    window.TrackLoadMethods.fieldName = fieldName;
+    const script = document.createElement('script');
+    script.src = urlOrFilePath;
+    script.async = true;
+    script.onload = () => {
+      onLoad(window.TrackLoadMethods[fieldName], fileName);
+      document.body.removeChild(script);
+    };
+    document.body.appendChild(script); // Initiates script loading
+  };
   const onFileOpen = (files) => {
     console.log('onFileOpen() files=%o', files);
-    // TODO
+    const file = files[0];
+    const filePath = (window.URL || window.webkitURL).createObjectURL(file);
+
+    // Read raw text file contents
+    const reader = new FileReader();
+    reader.onload = () => {
+      // console.log(reader.result);
+      const fileText = reader.result;
+      loadScript(filePath, file.name, 'track', (fileData, fileName) => {
+        console.log('File "%o" loaded, data=%o', fileName, fileData);
+        openTrack(file, file.name, fileText, fileData, stateCache);
+      });
+    };
+    reader.onerror = () => {
+      console.log(reader.error);
+    };
+    reader.readAsText(file); // Initiates file reading
   };
   const handleFileSave = () => {
     console.log('onFileSave()');
@@ -550,9 +589,9 @@ function App() {
                                   // eslint-disable-next-line no-nested-ternary
                                   isDragActive ? (
                                     '> Drop File Here <'
-                                  ) : trackFileName ? (
+                                  ) : currentFileName ? (
                                     <>
-                                      <ImFileMusic size="1.25rem" /> {trackFileName}
+                                      <ImFileMusic size="1.25rem" /> {currentFileName}
                                     </>
                                   ) : (
                                     'Open File'

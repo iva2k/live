@@ -4,6 +4,7 @@ import { ButtonGroup, Button, Col } from 'react-bootstrap';
 import { START_STOP_TRACK } from './gql';
 
 function Transport({ isPlaying }) {
+  // console.log('REDRAW: Transport');
   return (
     <Col className="transport">
       <ButtonGroup>

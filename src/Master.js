@@ -11,6 +11,7 @@ const jsxLoop = function* jsxLoop(count, callback) {
 };
 
 function Master({ count }) {
+  // console.log('REDRAW: Master');
   return (
     <>
       <Col>
