@@ -4,14 +4,16 @@ import { ApolloClient, ApolloProvider, InMemoryCache, useQuery } from '@apollo/c
 import { ApolloLink } from '@apollo/client/core';
 import { Query } from '@apollo/client/react/components';
 import { onError } from '@apollo/client/link/error';
-import { ImFileMusic, FiSave } from 'react-icons/all';
+import { BiCheckCircle, BiInfoCircle, BiError, ImFileMusic, FiSave } from 'react-icons/all';
 import React, { useState } from 'react';
-import { Container, Button, Row, Col } from 'react-bootstrap';
+import { Container, Button, Row, Col, Toast } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import toaster from 'toasted-notes';
+
 import * as Tone from 'tone';
 import { Session, arp, scale } from 'scribbletune/browser';
 
@@ -171,6 +173,36 @@ const client = new ApolloClient({
 });
 // console.log('DEBUG: process.env.NODE_ENV=%o', process.env.NODE_ENV);
 // console.log('DEBUG: window.__APOLLO_CLIENT__=%o', window.__APOLLO_CLIENT__);
+
+const getIcon = (icon) => {
+  switch (icon) {
+    case 'error':
+      return <BiError size="1.25rem" className="me-2" />;
+    case 'success':
+      return <BiCheckCircle size="1.25rem" className="me-2" />;
+    case 'info':
+      return <BiInfoCircle size="1.25rem" className="me-2" />;
+    default:
+      return null;
+  }
+};
+const toast = (icon, title, text, details, duration = 3000) => {
+  toaster.notify(
+    <Toast>
+      <Toast.Header>
+        {getIcon(icon)}
+        {title}
+      </Toast.Header>
+      <Toast.Body>
+        {text}
+        <div className="text-muted">{details}</div>
+      </Toast.Body>
+    </Toast>,
+    {
+      duration,
+    }
+  );
+};
 
 const setCurrentFile = (state) => {
   currentFileState = state;
@@ -452,26 +484,34 @@ function App() {
     // eslint-disable-next-line compat/compat
     const filePath = (window.URL || window.webkitURL).createObjectURL(file);
 
-    // Read raw text file contents
+    // 1. Read raw text file contents
     const reader = new FileReader();
     reader.onload = () => {
       // console.log(reader.result);
       const fileText = reader.result;
+      // 2. Load the script
       loadScript(filePath, file.name, 'track', (fileData, fileName) => {
         if (!fileData || !fileData.getData) {
-          console.log('Failed loading file "%o", no valid data=%o', fileName, fileData);
-          // TODO: Toaster here
+          // console.log('Failed loading file "%o", no valid data=%o', fileName, fileData);
+          toast(
+            'error',
+            'Error',
+            `Failed loading file "${fileName}"`,
+            `No valid data. File format should use window.TrackLoadMethods to install getData`
+          );
           return;
         }
-        console.log('Loaded file "%o", data=%o, executing...', fileName, fileData);
+        // 3. Execute .getData from the file
+        // console.log('Loaded file "%o", data=%o, executing...', fileName, fileData);
         try {
           fileData.track = fileData.getData(trackServiceProviders);
         } catch (e) {
-          console.log('Failed loading file "%o", execution error=%o', fileName, e);
-          // TODO: Toaster here
+          // console.log('Failed loading file "%o", execution error=%o', fileName, e);
+          toast('error', 'Error', `Failed getting data from file "${fileName}"`, `Error ${e.message}`);
           return;
         }
-        console.log('Executed file "%o", track=%o', fileName, fileData.track);
+        // 4. Load track data into session
+        // console.log('Executed file "%o", track=%o', fileName, fileData.track);
         openTrack(
           file,
           file.name,
@@ -483,17 +523,25 @@ function App() {
           },
           stateCache
         );
+        toast('success', 'Success', `Loaded file "${fileName}"`, `Track data loaded Ok.`);
       });
     };
     reader.onerror = () => {
-      // TODO: Toaster here
-      console.log(reader.error);
+      toast('error', 'Error', `Failed reading file "${file.name}"`, `Error ${reader.error}`);
+      // console.log(reader.error);
     };
     reader.readAsText(file); // Initiates file reading
   };
   const onFileOpenReject = (rejectedFiles) => {
-    console.log('onFileOpenReject() rejectedFiles=%o', rejectedFiles);
-    // TODO: Toaster
+    // console.log('onFileOpenReject() rejectedFiles=%o', rejectedFiles);
+    toast(
+      'error',
+      'Error',
+      `Cannot open file(s) "${rejectedFiles.map((f) => f.file.name).join('", "')}"`,
+      rejectedFiles.length > 0
+        ? `Can only open 1 file, but ${rejectedFiles.length} files given.`
+        : 'Wrong file type / extension, expected ".js"'
+    );
   };
   const handleFileSave = () => {
     // console.log('handleFileSave()');
