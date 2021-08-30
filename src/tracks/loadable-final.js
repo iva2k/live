@@ -2,7 +2,7 @@
   const getTrack = (providers) => {
     // Libraries provided by the app:
     // const { arp, scale, samplers, getToneMonoSynth, PlayOnJZZ, PlayOnSoundfontPlayer, PlayOnWebMidi } = providers || {};
-    const { arp, scale, samplers } = providers || {};
+    const { arp, scale, samplers, getToneMonoSynth } = providers || {};
 
     const track = {
       channels: [
@@ -432,168 +432,168 @@
             },
           ],
         },
+        {
+          name: 'Synth',
+          sample: '',
+          synth: getToneMonoSynth('FMSynth:ElectricCello'),
+          volume: -20,
+          clips: [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {
+              pattern: 'x',
+              notes: 'Dm BbM Dm FM',
+              subdiv: '2m',
+              dur: '2m',
+            },
+          ],
+        },
         /*
-      {
-        name: 'Synth',
-        sample: '',
-        synth: getToneMonoSynth('FMSynth:ElectricCello'),
-        volume: -20,
-        clips: [
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {
-            pattern: 'x',
-            notes: 'Dm BbM Dm FM',
-            subdiv: '2m',
-            dur: '2m',
-          },
-        ],
-      },
-      {
-        name: 'JZZ',
-        sample: '',
-        external: PlayOnJZZ({
-          // ? name: 'marimba',
-          // ? soundfont: 'FluidR3_GM',
-          // ? output: 0,
-          channel: 1,
-          program: 16,
-        }),
-        volume: -20,
-        clips: [
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {
-            pattern: 'x',
-            notes: arp({
-              chords: 'Dm Dm Dm BbM Am Am FM CM Dm Dm Dm BbM Gm Gm BbM CM',
-              count: 8,
-              order: '0245',
-            }),
-            subdiv: '16n',
-            dur: '16n',
-          },
-          {
-            pattern: 'x[xx][-x-x][--xx]',
-            notes: arp({
-              chords: 'Dm BbM Am FM',
-              count: 8,
-              order: '0132',
-            }),
-            dur: '16n',
-          },
-          {
-            pattern: 'x',
-            notes: 'Dm BbM Dm FM',
-            subdiv: '2m',
-            dur: '2m',
-          },
-        ],
-      },
-      {
-        name: 'Soundfont',
-        sample: '',
-        external: PlayOnSoundfontPlayer({
-          name: 'marimba',
-          soundfont: 'FluidR3_GM',
-          // type: "midi",
-          // channel: 0,
-          // patch: 16,
-        }),
-        volume: -20,
-        clips: [
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {
-            pattern: 'x',
-            notes: arp({
-              chords: 'Dm Dm Dm BbM Am Am FM CM Dm Dm Dm BbM Gm Gm BbM CM',
-              count: 8,
-              order: '0245',
-            }),
-            subdiv: '16n',
-            dur: '16n',
-          },
-          {
-            pattern: 'x[xx][-x-x][--xx]',
-            notes: arp({
-              chords: 'Dm BbM Am FM',
-              count: 8,
-              order: '0132',
-            }),
-            dur: '16n',
-          },
-          {
-            pattern: 'x',
-            notes: 'Dm BbM Dm FM',
-            subdiv: '2m',
-            dur: '2m',
-          },
-        ],
-      },
-      {
-        name: 'WebMidi',
-        sample: '',
-        external: PlayOnWebMidi({
-          // ? name: 'marimba',
-          // ? soundfont: 'FluidR3_GM',
-          // ? output: 0,
-          channel: 1,
-          program: 16,
-        }),
-        volume: -20,
-        clips: [
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {},
-          {
-            pattern: 'x',
-            notes: arp({
-              chords: 'Dm Dm Dm BbM Am Am FM CM Dm Dm Dm BbM Gm Gm BbM CM',
-              count: 8,
-              order: '0245',
-            }),
-            subdiv: '16n',
-            dur: '16n',
-          },
-          {
-            pattern: 'x[xx][-x-x][--xx]',
-            notes: arp({
-              chords: 'Dm BbM Am FM',
-              count: 8,
-              order: '0132',
-            }),
-            dur: '16n',
-          },
-          {
-            pattern: 'x',
-            notes: 'Dm BbM Dm FM',
-            subdiv: '2m',
-            dur: '2m',
-          },
-        ],
-      },
+        {
+          name: 'JZZ',
+          sample: '',
+          external: PlayOnJZZ({
+            // ? name: 'marimba',
+            // ? soundfont: 'FluidR3_GM',
+            // ? output: 0,
+            channel: 1,
+            program: 16,
+          }),
+          volume: -20,
+          clips: [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {
+              pattern: 'x',
+              notes: arp({
+                chords: 'Dm Dm Dm BbM Am Am FM CM Dm Dm Dm BbM Gm Gm BbM CM',
+                count: 8,
+                order: '0245',
+              }),
+              subdiv: '16n',
+              dur: '16n',
+            },
+            {
+              pattern: 'x[xx][-x-x][--xx]',
+              notes: arp({
+                chords: 'Dm BbM Am FM',
+                count: 8,
+                order: '0132',
+              }),
+              dur: '16n',
+            },
+            {
+              pattern: 'x',
+              notes: 'Dm BbM Dm FM',
+              subdiv: '2m',
+              dur: '2m',
+            },
+          ],
+        },
+        {
+          name: 'Soundfont',
+          sample: '',
+          external: PlayOnSoundfontPlayer({
+            name: 'marimba',
+            soundfont: 'FluidR3_GM',
+            // type: "midi",
+            // channel: 0,
+            // patch: 16,
+          }),
+          volume: -20,
+          clips: [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {
+              pattern: 'x',
+              notes: arp({
+                chords: 'Dm Dm Dm BbM Am Am FM CM Dm Dm Dm BbM Gm Gm BbM CM',
+                count: 8,
+                order: '0245',
+              }),
+              subdiv: '16n',
+              dur: '16n',
+            },
+            {
+              pattern: 'x[xx][-x-x][--xx]',
+              notes: arp({
+                chords: 'Dm BbM Am FM',
+                count: 8,
+                order: '0132',
+              }),
+              dur: '16n',
+            },
+            {
+              pattern: 'x',
+              notes: 'Dm BbM Dm FM',
+              subdiv: '2m',
+              dur: '2m',
+            },
+          ],
+        },
+        {
+          name: 'WebMidi',
+          sample: '',
+          external: PlayOnWebMidi({
+            // ? name: 'marimba',
+            // ? soundfont: 'FluidR3_GM',
+            // ? output: 0,
+            channel: 1,
+            program: 16,
+          }),
+          volume: -20,
+          clips: [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {
+              pattern: 'x',
+              notes: arp({
+                chords: 'Dm Dm Dm BbM Am Am FM CM Dm Dm Dm BbM Gm Gm BbM CM',
+                count: 8,
+                order: '0245',
+              }),
+              subdiv: '16n',
+              dur: '16n',
+            },
+            {
+              pattern: 'x[xx][-x-x][--xx]',
+              notes: arp({
+                chords: 'Dm BbM Am FM',
+                count: 8,
+                order: '0132',
+              }),
+              dur: '16n',
+            },
+            {
+              pattern: 'x',
+              notes: 'Dm BbM Dm FM',
+              subdiv: '2m',
+              dur: '2m',
+            },
+          ],
+        },
 /* */
       ],
     };
