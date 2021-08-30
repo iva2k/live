@@ -491,20 +491,20 @@ function App() {
       const fileText = reader.result;
       // 2. Load the script
       loadScript(filePath, file.name, 'track', (fileData, fileName) => {
-        if (!fileData || !fileData.getData) {
+        if (!fileData || !fileData.getTrack) {
           // console.log('Failed loading file "%o", no valid data=%o', fileName, fileData);
           toast(
             'error',
             'Error',
             `Failed loading file "${fileName}"`,
-            `No valid data. File format should use window.TrackLoadMethods to install getData`
+            `No valid track. File format should use window.TrackLoadMethods to install getTrack`
           );
           return;
         }
-        // 3. Execute .getData from the file
+        // 3. Execute .getTrack from the file
         // console.log('Loaded file "%o", data=%o, executing...', fileName, fileData);
         try {
-          fileData.track = fileData.getData(trackServiceProviders);
+          fileData.track = fileData.getTrack(trackServiceProviders);
         } catch (e) {
           // console.log('Failed loading file "%o", execution error=%o', fileName, e);
           toast('error', 'Error', `Failed getting data from file "${fileName}"`, `Error ${e.message}`);

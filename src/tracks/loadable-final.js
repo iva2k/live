@@ -1,5 +1,5 @@
 {
-  const getData = (providers) => {
+  const getTrack = (providers) => {
     // Libraries provided by the app:
     // const { arp, scale, samplers, getToneMonoSynth, PlayOnJZZ, PlayOnSoundfontPlayer, PlayOnWebMidi } = providers || {};
     const { arp, scale, samplers } = providers || {};
@@ -603,11 +603,11 @@
   // Return function (data getter) to the app:
   if (window.TrackLoadMethods) {
     const sectionName = window.TrackLoadMethods['sectionName'] || 'track';
-    window.TrackLoadMethods[sectionName] = { getData };
+    window.TrackLoadMethods[sectionName] = { getTrack };
     console.log(
-      'loadable-final.js: window.TrackLoadMethods[sectionName]=%o getData=%o',
+      'loadable-final.js: window.TrackLoadMethods[sectionName]=%o getTrack=%o',
       window.TrackLoadMethods[sectionName],
-      getData
+      getTrack
     );
   }
 }
