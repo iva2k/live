@@ -13,7 +13,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import * as Tone from 'tone';
-import { Session, scale } from 'scribbletune/browser';
+import { Session, arp, scale } from 'scribbletune/browser';
 
 import Dropzone, { useDropzone } from 'react-dropzone';
 // import { ExecutionResult } from 'graphql';
@@ -27,7 +27,10 @@ import Master from './Master';
 
 import getResolvers from './resolvers';
 
-import { samplers } from './sounds';
+import { getToneMonoSynth, samplers } from './sounds';
+import PlayOnJZZ from './PlayOnJZZ';
+import PlayOnSoundfontPlayer from './PlayOnSoundfontPlayer';
+import PlayOnWebMidi from './PlayOnWebMidi';
 
 // import exampleTrack from './tracks/dummy';
 // import exampleTrack from './tracks/init';
@@ -44,10 +47,18 @@ const connectToDevTools = process.env.NODE_ENV !== 'production';
 
 window.Tone = Tone; // For the scribbletune lib to pick up the instance.
 window.TrackLoadMethods = {
-  // For the loadable tracks
-  fieldName: 'track',
+  // Mechanism for the loadable track file to deliver its functions
+  sectionName: 'track',
+};
+const trackServiceProviders = {
+  // Providers for the loadable track file functions
+  arp, // from 'scribbletune/browser'
   scale, // from 'scribbletune/browser'
-  samplers, // from '../sounds'
+  samplers, // from './sounds'
+  getToneMonoSynth, // from './sounds'
+  PlayOnJZZ, // from './PlayOnJZZ'
+  PlayOnSoundfontPlayer, // from './PlayOnSoundfontPlayer'
+  PlayOnWebMidi, // from './PlayOnWebMidi'
 };
 
 let currentFile;
@@ -452,13 +463,14 @@ function App() {
     // console.log('handleBpmIncrEvent() %o', bpmValue);
   };
 
-  const loadScript = (urlOrFilePath, fileName, fieldName, onLoad) => {
-    window.TrackLoadMethods.fieldName = fieldName;
+  const loadScript = (urlOrFilePath, fileName, sectionName, onLoad) => {
+    window.TrackLoadMethods[sectionName] = undefined;
+    window.TrackLoadMethods.sectionName = sectionName; // Tell the loadable script where to post its data
     const script = document.createElement('script');
     script.src = urlOrFilePath;
     script.async = true;
     script.onload = () => {
-      onLoad(window.TrackLoadMethods[fieldName], fileName);
+      onLoad(window.TrackLoadMethods[sectionName], fileName);
       document.body.removeChild(script);
     };
     document.body.appendChild(script); // Initiates script loading
@@ -474,11 +486,25 @@ function App() {
       // console.log(reader.result);
       const fileText = reader.result;
       loadScript(filePath, file.name, 'track', (fileData, fileName) => {
-        console.log('File "%o" loaded, data=%o', fileName, fileData);
-        openTrack(file, file.name, fileText, fileData, stateCache);
+        if (!fileData || !fileData.getData) {
+          console.log('Failed loading file "%o", no valid data=%o', fileName, fileData);
+          // TODO: Toaster here
+          return;
+        }
+        console.log('Loaded file "%o", data=%o, executing...', fileName, fileData);
+        try {
+          fileData.track = fileData.getData(trackServiceProviders);
+        } catch (e) {
+          console.log('Failed loading file "%o", execution error=%o', fileName, e);
+          // TODO: Toaster here
+          return;
+        }
+        console.log('Executed file "%o", track=%o', fileName, fileData.track);
+        openTrack(file, file.name, fileText, fileData.track, stateCache);
       });
     };
     reader.onerror = () => {
+      // TODO: Toaster here
       console.log(reader.error);
     };
     reader.readAsText(file); // Initiates file reading
