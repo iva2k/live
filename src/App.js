@@ -18,6 +18,8 @@ import { Session, arp, scale } from 'scribbletune/browser';
 import Dropzone, { useDropzone } from 'react-dropzone';
 // import { ExecutionResult } from 'graphql';
 import Observable from 'zen-observable';
+import { saveAs } from 'file-saver';
+
 import { GET_IS_PLAYING, GET_DATA, WRITE_DATA } from './gql';
 import introspectionResult from './schema-introspection.json';
 
@@ -36,8 +38,10 @@ import PlayOnWebMidi from './PlayOnWebMidi';
 // import exampleTrack from './tracks/init';
 // import exampleTrack from './tracks/half';
 import exampleTrackData from './tracks/final';
+// import * as trackLoadable from './tracks/loadable-final'; // TODO: Use loadable tracks
 
 const exampleTrackName = 'final';
+const exampleTrackText = ''; // TODO: Load example track text
 
 const appVersion = 'v0.0.1'; // TODO: extract from package.json (using Webpack plugins?)
 const appRelease = 'build-2021-0824';
@@ -61,11 +65,7 @@ const trackServiceProviders = {
   PlayOnWebMidi, // from './PlayOnWebMidi'
 };
 
-let currentFile;
-let currentFileName;
-let currentFileText;
-let currentFileData;
-let currentFileIsDirty = true;
+let currentFileState = {};
 let currentFileTrackSession;
 
 /**
@@ -211,18 +211,26 @@ const client = new ApolloClient({
   resolvers,
   connectToDevTools,
 });
-console.log('DEBUG: process.env.NODE_ENV=%o', process.env.NODE_ENV);
-console.log('DEBUG: window.__APOLLO_CLIENT__=%o', window.__APOLLO_CLIENT__);
+// console.log('DEBUG: process.env.NODE_ENV=%o', process.env.NODE_ENV);
+// console.log('DEBUG: window.__APOLLO_CLIENT__=%o', window.__APOLLO_CLIENT__);
 
-const openTrack = (file, fileName, fileText, fileData, cache) => {
+const setCurrentFile = (state) => {
+  currentFileState = state;
+  // TODO setCurrentFileIsDirty(state.isDirty); // currentFileIsDirty
+  // We have a hacky arrangement to pre-load an example track file before App().
+  // We should properly use setCurrentFileIsDirty() which is only available inside App().
+  // However, for pre-load, openTrack() should be on top level, so can't access setCurrentFileIsDirty().
+  // Instead, we save to currentFileState.isDirty and App() initializes local state with it.
+};
+const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache) => {
   currentFileTrackSession?.stopTransport();
-
-  currentFile = false;
-  currentFileName = '';
-  // currentFileName = '(none)';
-  currentFileText = '';
-  currentFileData = {};
-  currentFileIsDirty = false;
+  setCurrentFileFnc({
+    file: false,
+    name: '(none)',
+    text: '',
+    data: {},
+    isDirty: false,
+  });
   currentFileTrackSession = {};
 
   const track = {
@@ -255,9 +263,9 @@ const openTrack = (file, fileName, fileText, fileData, cache) => {
     const channelClips = ch.clips.map((cl, idx) => {
       try {
         if (cl.pattern) {
-          countPatternClipsUsed += 1;
+          countPatternClipsUsed += cl.pattern.length > 0;
         } else if (cl.clipStr) {
-          countClipStrClipsUsed += 1;
+          countClipStrClipsUsed += cl.clipStr !== "''" && cl.clipStr.length > 0 ? 1 : 0;
           const clipObj = JSON.parse(cl.clipStr);
           [
             'pattern',
@@ -310,16 +318,17 @@ const openTrack = (file, fileName, fileText, fileData, cache) => {
       // isConnected: true, // Example monitoring network connection
     },
   });
-  currentFile = file;
-  currentFileName = fileName;
-  currentFileText = fileText;
-  currentFileData = fileData;
-  currentFileIsDirty = false;
-  currentFileName = fileName;
+  setCurrentFileFnc({
+    file,
+    name: fileName,
+    text: fileText,
+    data: fileData,
+    isDirty: true, // TODO: WIP: false;
+  });
   currentFileTrackSession = session;
 };
 
-openTrack(null, exampleTrackName, '', exampleTrackData, stateCache);
+openTrack(null, exampleTrackName, exampleTrackText, exampleTrackData, setCurrentFile, stateCache);
 
 // Globals for mouse/pointer tracking in number spinner control (bpm)
 // TODO: Move to a separate context, make spinner component
@@ -352,12 +361,15 @@ function useScribbletuneIsPlaying(store) {
 
 function App() {
   // console.log('REDRAW: App');
+
+  // Some local state variables (not using context or Apollo)
+  const [currentFileIsDirty, setCurrentFileIsDirty] = useState(currentFileState.isDirty);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [bpmValue, setBpmValue] = useState(120.0);
   // TODO: connect bpm to scribbletune
 
-  // WIP: Connect to scribbletune here instead of in resolvers.js
+  // Experiment: Control scribbletune here instead of in resolvers.js
   useScribbletuneIsPlaying(client);
 
   const onSidebarClose = () => setShowSidebar(false);
@@ -476,8 +488,9 @@ function App() {
     document.body.appendChild(script); // Initiates script loading
   };
   const onFileOpen = (files) => {
-    console.log('onFileOpen() files=%o', files);
+    // console.log('onFileOpen() files=%o', files);
     const file = files[0];
+    // eslint-disable-next-line compat/compat
     const filePath = (window.URL || window.webkitURL).createObjectURL(file);
 
     // Read raw text file contents
@@ -500,7 +513,17 @@ function App() {
           return;
         }
         console.log('Executed file "%o", track=%o', fileName, fileData.track);
-        openTrack(file, file.name, fileText, fileData.track, stateCache);
+        openTrack(
+          file,
+          file.name,
+          fileText,
+          fileData.track,
+          (state) => {
+            setCurrentFileIsDirty(state.isDirty);
+            setCurrentFile(state);
+          },
+          stateCache
+        );
       });
     };
     reader.onerror = () => {
@@ -510,8 +533,15 @@ function App() {
     reader.readAsText(file); // Initiates file reading
   };
   const handleFileSave = () => {
-    console.log('onFileSave()');
-    // TODO
+    // console.log('handleFileSave()');
+    if (currentFileState.text?.length > 0) {
+      // const blob = new Blob(['Hello, world!'], { type: 'text/plain;charset=utf-8' });
+      // const blob = new Blob([currentFileState.text], { type: 'text/plain;charset=utf-8' });
+      // const blob = new Blob([currentFileState.text], { type: 'text/javascript;charset=utf-8' });
+      const blob = new Blob([currentFileState.text], { type: 'application/javascript;charset=utf-8' });
+      saveAs(blob, currentFileState.name || '');
+    }
+    setCurrentFileIsDirty(false); // currentFileIsDirty = false;
   };
 
   let channelsCnt;
@@ -615,9 +645,9 @@ function App() {
                                   // eslint-disable-next-line no-nested-ternary
                                   isDragActive ? (
                                     '> Drop File Here <'
-                                  ) : currentFileName ? (
+                                  ) : currentFileState.name ? (
                                     <>
-                                      <ImFileMusic size="1.25rem" /> {currentFileName}
+                                      <ImFileMusic size="1.25rem" /> {currentFileState.name}
                                     </>
                                   ) : (
                                     'Open File'
