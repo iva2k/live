@@ -1,34 +1,35 @@
 import React from 'react';
 // import PropTypes from 'prop-types'; // npm install --save prop-types
 import { Col } from 'react-bootstrap';
-import { useQuery } from '@apollo/client';
+// import { useQuery } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
-import * as Tone from 'tone';
+// import * as Tone from 'tone';
 import Clip from './Clip';
 
-import { GET_VOLUME, SET_VOLUME } from './gql';
+// import { GET_VOLUME, SET_VOLUME } from './gql';
+import { SET_VOLUME } from './gql';
 
 // React hook for scribbletune channel volume
-function useScribbletuneGetVolume(channelIdx, store) {
-  const { loading, error, data } = useQuery(GET_VOLUME, {
-    variables: { channelIdx },
-    client: store,
-  });
-  console.log(
-    'useScribbletuneGetVolume(%o) @%o loading=%o error=%o data=%o volume=%o',
-    channelIdx,
-    Tone.now(),
-    loading,
-    error,
-    data,
-    data?.channels[0]?.volume
-  );
-  return data?.channels[0]?.volume;
-}
+// function useScribbletuneGetVolume(channelIdx, store) {
+//   const { loading, error, data } = useQuery(GET_VOLUME, {
+//     variables: { channelIdx },
+//     client: store,
+//   });
+//   console.log(
+//     'useScribbletuneGetVolume(%o) @%o loading=%o error=%o data=%o volume=%o',
+//     channelIdx,
+//     Tone.now(),
+//     loading,
+//     error,
+//     data,
+//     data?.channels[0]?.volume
+//   );
+//   return data?.channels[0]?.volume;
+// }
 
 function Channel({ channel, showGears }) {
   // console.log('REDRAW: Channel %o', channel);
-  useScribbletuneGetVolume(channel.idx); // TODO: decide if using volume here to set scribbletune channel volume is acceptable (10ms later than resolvers.js)
+  // useScribbletuneGetVolume(channel.idx); // TODO: decide if using volume here to set scribbletune channel volume is acceptable (10ms later than resolvers.js)
   return (
     <>
       <Col>
