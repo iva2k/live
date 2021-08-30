@@ -15,7 +15,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import * as Tone from 'tone';
 import { Session, arp, scale } from 'scribbletune/browser';
 
-import Dropzone, { useDropzone } from 'react-dropzone';
+import Dropzone from 'react-dropzone';
 // import { ExecutionResult } from 'graphql';
 import Observable from 'zen-observable';
 import { saveAs } from 'file-saver';
@@ -93,48 +93,6 @@ const introspectionLink =
     throw new Error(`Unable to handle operation ${operation.operationName}`);
   });
 /** END introspection for devtools */
-
-function MyDropzone(props) {
-  const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
-    // Disable click and keydown behavior
-    noClick: true,
-    noKeyboard: true,
-  });
-
-  const files = acceptedFiles.map((file) => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-    </li>
-  ));
-  console.log("react-dropzone getRootProps({ className: 'dropzone' })=%o", getRootProps({ className: 'dropzone' }));
-
-  console.log('react-dropzone getInputProps()=%o', getInputProps());
-  // react-dropzone getInputProps()={accept: undefined, multiple: true, type: 'file', style: {…}, onChange: ƒ, …}
-  /*
-accept: undefined
-autoComplete: "off"
-multiple: true
-onChange: ƒ (event)
-onClick: ƒ (event)
-ref: {current: input}
-style: {display: "none"}
-tabIndex: -1
-type: "file"
-[[Prototype]]: Object
-
- */
-  return (
-    <div className="container">
-      <div {...getRootProps({ className: 'dropzone' })}>
-        <input {...getInputProps()} />
-        <p>Drag &lsquo;n&rsquo; drop some files here</p>
-        <button type="button" onClick={open}>
-          Open File Dialog
-        </button>
-      </div>
-    </div>
-  );
-}
 
 const mutationObservers = {
   setChannelVolume: (channelIdx, volume) => {
@@ -480,11 +438,12 @@ function App() {
     window.TrackLoadMethods.sectionName = sectionName; // Tell the loadable script where to post its data
     const script = document.createElement('script');
     script.src = urlOrFilePath;
+    script.type = 'application/javascript';
     script.async = true;
-    script.onload = () => {
+    script.addEventListener('load', () => {
       onLoad(window.TrackLoadMethods[sectionName], fileName);
       document.body.removeChild(script);
-    };
+    });
     document.body.appendChild(script); // Initiates script loading
   };
   const onFileOpen = (files) => {
@@ -531,6 +490,10 @@ function App() {
       console.log(reader.error);
     };
     reader.readAsText(file); // Initiates file reading
+  };
+  const onFileOpenReject = (rejectedFiles) => {
+    console.log('onFileOpenReject() rejectedFiles=%o', rejectedFiles);
+    // TODO: Toaster
   };
   const handleFileSave = () => {
     // console.log('handleFileSave()');
@@ -634,7 +597,17 @@ function App() {
 
                     <Navbar.Collapse className="justify-content-end">
                       <Nav className="file">
-                        <Dropzone onDrop={(acceptedFiles) => onFileOpen(acceptedFiles)}>
+                        <Dropzone
+                          onDropRejected={(rejectedFiles) => onFileOpenReject(rejectedFiles)}
+                          onDropAccepted={(acceptedFiles) => onFileOpen(acceptedFiles)}
+                          accept={
+                            [
+                              'text/javascript',
+                              'application/javascript',
+                            ] /* see https://react-dropzone.js.org/#section-components */
+                          }
+                          maxFiles={1}
+                        >
                           {({ getRootProps, getInputProps, isDragActive }) => (
                             <div {...getRootProps()}>
                               <Nav.Link className="file-name">
