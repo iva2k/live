@@ -204,6 +204,24 @@ const toast = (icon, title, text, details, duration = 3000) => {
   );
 };
 
+const onChannelEvent = (event, params) => {
+  // Receive async events from scribbletune
+  switch (event) {
+    case 'error':
+      {
+        const { e } = params;
+        if (e) {
+          console.log(e);
+        } else {
+          console.log('Error: params=%o', params);
+        }
+      }
+      break;
+    default:
+      console.log('onChannelEvent() event=%o params=%o', event, params);
+  }
+};
+
 const setCurrentFile = (state) => {
   currentFileState = state;
   // TODO setCurrentFileIsDirty(state.isDirty); // currentFileIsDirty
@@ -295,6 +313,7 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
       countPatternClipsUsed
     );
     ch.clips = channelClips;
+    ch.eventCb = onChannelEvent;
     return ch;
   });
   const session = new Session(channels);
