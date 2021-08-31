@@ -217,6 +217,16 @@ const onChannelEvent = (event, params) => {
         }
       }
       break;
+    case 'loaded':
+      {
+        const { channel } = params;
+        if (channel) {
+          console.log('Loaded channel idx %o "%o"', channel.idx, channel.name);
+        } else {
+          console.log('Loaded: params=%o', params);
+        }
+      }
+      break;
     default:
       console.log('onChannelEvent() event=%o params=%o', event, params);
   }
