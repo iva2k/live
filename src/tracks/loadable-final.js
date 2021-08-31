@@ -2,7 +2,7 @@
   const getTrack = (providers) => {
     // Libraries provided by the app:
     // const { arp, scale, samplers, getToneMonoSynth, PlayOnJZZ, PlayOnSoundfontPlayer, PlayOnWebMidi } = providers || {};
-    const { arp, scale, samplers, getToneMonoSynth } = providers || {};
+    const { arp, scale, samplers, getToneMonoSynth, PlayOnJZZ } = providers || {};
 
     const track = {
       channels: [
@@ -75,6 +75,7 @@
             },
           ],
         },
+        /*
         {
           name: 'Ch',
           sample: '/sounds/samples/ch.wav',
@@ -432,6 +433,7 @@
             },
           ],
         },
+        /* */
         {
           name: 'Synth',
           sample: '',
@@ -455,7 +457,7 @@
             },
           ],
         },
-        /*
+        /* */
         {
           name: 'JZZ',
           sample: '',
@@ -502,6 +504,7 @@
             },
           ],
         },
+        /*
         {
           name: 'Soundfont',
           sample: '',
