@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable quote-props */
-import * as Tone from 'tone';
+// import * as Tone from 'tone';
 
 const ToneMonoSynths = {
   FMSynth: {
@@ -672,6 +672,8 @@ export const samplers = {
 export function getToneMonoSynth(synthPreset) {
   const arr = synthPreset.split(':');
   const synth = arr[0];
-  const preset = arr[1];
-  return new Tone[synth](preset ? ToneMonoSynths[synth][preset] : '');
+  const presetName = arr[1];
+  const preset = presetName ? ToneMonoSynths[synth][presetName] : '';
+  // return new Tone[synth](preset);
+  return { synth, presetName, preset };
 }
