@@ -128,20 +128,6 @@ input[type='range'][orient='vertical'] {
   background-color: rgba(255, 255, 255, 0.6);
 }
 
-.toolbar input[type='number'] {
-
-  /* For Firefox */
-  appearance: textfield;
-  text-align: center;
-}
-
-/* Webkit browsers like Safari and Chrome */
-.toolbar input[type='number']::-webkit-inner-spin-button,
-.toolbar input[type='number']::-webkit-outer-spin-button {
-  appearance: none;
-  margin: 0;
-}
-
 /* Style toaster like Darkly theme from <https://bootswatch.com/darkly/> */
 
 .Toaster__manager-top {
