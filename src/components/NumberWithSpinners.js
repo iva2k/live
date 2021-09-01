@@ -47,12 +47,12 @@ import { Button, Col, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import './NumberWithSpinners.css';
 
-// Globals for mouse/pointer tracking in number spinner control (bpm)
-let repeatingBtnIntervalId; // TODO
+// Globals for mouse/pointer tracking in number spinner control.
+// There's only one pointer, so global context for those is ok.
+let repeatingBtnIntervalId;
 let repeatingBtnTimeoutId;
 let repeatingBtnClickCnt;
 let repeatingBtnPointerIn;
-// let repeatingBtnInOurClickHandler; // Guard from events produced by our evt.target.click() // TODO: Needed??
 
 function NumberWithSpinners({
   value,
@@ -98,7 +98,6 @@ function NumberWithSpinners({
       // console.log('click first');
       // evt.target.click();
       repeatingBtnPointerIn = true;
-      // repeatingBtnInOurClickHandler = false;
       repeatingBtnClickCnt = 0;
       evt.target.setPointerCapture(evt.pointerId);
 
@@ -107,12 +106,9 @@ function NumberWithSpinners({
 
       // Start repeating with slow interval
       repeatingBtnIntervalId = setInterval(() => {
-        // if (repeatingBtnPointerIn && !repeatingBtnInOurClickHandler) {
         if (repeatingBtnPointerIn) {
           // console.log('click repeat slow repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
-          // repeatingBtnInOurClickHandler = true;
           evt.target.click();
-          // repeatingBtnInOurClickHandler = false;
           repeatingBtnClickCnt += 1;
         }
       }, repeatingBtnSlowTimeMs);
@@ -122,12 +118,9 @@ function NumberWithSpinners({
         // Change repeating to fast interval
         clearInterval(repeatingBtnIntervalId);
         repeatingBtnIntervalId = setInterval(() => {
-          // if (repeatingBtnPointerIn && !repeatingBtnInOurClickHandler) {
           if (repeatingBtnPointerIn) {
             // console.log('click repeat fast repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
-            // repeatingBtnInOurClickHandler = true;
             evt.target.click();
-            // repeatingBtnInOurClickHandler = false;
             repeatingBtnClickCnt += 1;
           }
         }, repeatingBtnFastTimeMs);
@@ -143,10 +136,8 @@ function NumberWithSpinners({
       repeatingBtnTimeoutId = undefined;
       if (repeatingBtnClickCnt !== 0) {
         // evt.preventDefault();
-        // } else if (repeatingBtnPointerIn && !repeatingBtnInOurClickHandler) {
       } else if (repeatingBtnPointerIn) {
         // console.log('click once repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
-        // repeatingBtnInOurClickHandler = true; evt.target.click(); repeatingBtnInOurClickHandler = false;
         repeatingBtnClickCnt += 1;
       }
       repeatingBtnPointerIn = false;

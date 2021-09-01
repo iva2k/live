@@ -8,11 +8,14 @@ In addition to the to-do's sprinkled throughout the code, this file contains kin
 
 It is also a thinking-out-loud place, to capture ideas for future features.
 
+### General
+
+* TODO Theme changer, better framework (with useful components like number input with spinner), see promising <https://www.primefaces.org/primereact/showcase/#/inputnumber>
+
 ### Baseline
 
 (see duplicaes in the code)
 
-* TODO Fix scribbletune::channel.extension polluting track with Tone instrument (chockes Apollo devtools JSON with circular references)
 * TODO BPM control
 * TODO Channel mute
 * TODO Master volume + mute

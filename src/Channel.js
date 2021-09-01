@@ -29,7 +29,7 @@ import { SET_VOLUME } from './gql';
 
 function Channel({ channel, showGears }) {
   // console.log('REDRAW: Channel %o', channel);
-  // useScribbletuneGetVolume(channel.idx); // TODO: decide if using volume here to set scribbletune channel volume is acceptable (10ms later than resolvers.js)
+  // useScribbletuneGetVolume(channel.idx); // Using volume here to set scribbletune channel volume is possiblem but this approach adds 10ms latency vs. observer in resolvers.js
   return (
     <>
       <Col>
