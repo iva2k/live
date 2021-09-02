@@ -189,3 +189,16 @@ input[type='range'][orient='vertical'] {
 .Toaster__alert .btn-close {
   display: none; /* Hide Bootstrap toaster close button */
 }
+
+.channel-state,
+.channel-state div {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.channel-state .channel-state-error {
+  color: #f00;
+  height: 36px;
+  width: 36px;
+}

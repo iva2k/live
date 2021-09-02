@@ -13,6 +13,11 @@ export const GET_DATA = gql`
       activeClipIdx
       name
       volume
+      state
+      error {
+        message
+        stack
+      }
       clips {
         clipStr
         pattern

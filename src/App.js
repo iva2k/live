@@ -61,6 +61,7 @@ window.TrackLoadMethods = {
 const trackServiceProviders = {
   // Providers for the loadable track file functions
   arp, // from 'scribbletune/browser'
+  // ? chords, // from 'scribbletune/browser'
   scale, // from 'scribbletune/browser'
   samplers, // from './sounds'
   getToneMonoSynth, // from './sounds'
@@ -206,14 +207,36 @@ const toast = (icon, title, text, details, duration = 3000) => {
   );
 };
 
+const setChState = (channelIdx, state, error, cache) => {
+  const existingData = cache.readQuery({
+    query: GET_DATA,
+  });
+  if (existingData?.channels) {
+    const newChannels = existingData.channels?.map((ch) => {
+      const newChannel = { ...ch };
+      if (ch.idx === channelIdx) {
+        newChannel.state = state;
+        newChannel.error = { message: error?.message || '', stack: error?.stack || '' };
+        // set channel state
+      }
+      return newChannel;
+    });
+    cache.writeQuery({
+      query: WRITE_DATA,
+      data: { channels: newChannels },
+    });
+  }
+};
+
 const onChannelEvent = (event, params) => {
   // Receive async events from scribbletune
   switch (event) {
     case 'error':
       {
-        const { e } = params;
-        if (e) {
+        const { e, channel } = params;
+        if (e && channel) {
           console.log(e);
+          setChState(channel?.idx, 'error', e, stateCache);
         } else {
           console.log('Error: params=%o', params);
         }
@@ -224,6 +247,7 @@ const onChannelEvent = (event, params) => {
         const { channel } = params;
         if (channel) {
           console.log('Loaded channel idx %o "%o"', channel.idx, channel.name);
+          setChState(channel?.idx, 'loaded', null, stateCache);
         } else {
           console.log('Loaded: params=%o', params);
         }
@@ -273,6 +297,8 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
         __typename: 'Channel',
         activeClipIdx: -1,
         idx,
+        state: 'loading',
+        error: { message: '', stack: '' },
       };
     }),
   };

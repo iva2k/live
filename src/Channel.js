@@ -5,6 +5,7 @@ import { Col } from 'react-bootstrap';
 import { Mutation } from '@apollo/client/react/components';
 // import * as Tone from 'tone';
 import Clip from './Clip';
+import ChannelState from './ChannelState';
 
 // import { GET_VOLUME, SET_VOLUME } from './gql';
 import { SET_VOLUME } from './gql';
@@ -66,6 +67,7 @@ function Channel({ channel, showGears }) {
           </Mutation>
         </div>
         <h6 className="text-center">{channel.name}</h6>
+        <ChannelState state={channel.state} error={channel.error} />
       </Col>
     </>
   );

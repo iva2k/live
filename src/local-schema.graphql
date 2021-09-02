@@ -1,3 +1,7 @@
+  type JsError {
+     message: String
+     stack: String
+  }
   type Clip {
     # /**
     # * A string or array of notes or chords names.
@@ -34,6 +38,8 @@
     name: String
     volume: Float
     activeClipIdx: Int
+    state: String
+    error: JsError
     clips: [Clip!]
   #   #     amp?          : number;
   #   #     synth?        : any;
