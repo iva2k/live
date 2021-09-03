@@ -258,6 +258,19 @@ const onChannelEvent = (event, params) => {
   }
 };
 
+const onPlayerEvent = (params) => {
+  const { note, duration, time, counter, channel } = params;
+  console.log(
+    'Player(%o chIdx=%o note=%o dur=%o delay=%o, counter=%o)',
+    channel?.name,
+    channel?.idx,
+    note,
+    duration,
+    time,
+    counter
+  );
+};
+
 const setCurrentFile = (state) => {
   currentFileState = state;
   // TODO setCurrentFileIsDirty(state.isDirty); // currentFileIsDirty
@@ -326,7 +339,7 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
             'accent',
             'accentLow',
             'sizzleReps',
-            'durations',
+            // 'durations', // - internal
             // 'offlineRendering', 'offlineRenderingCallback',
           ].forEach((key) => {
             if (clipObj[key]) {
@@ -352,6 +365,7 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
     );
     ch.clips = channelClips;
     ch.eventCb = onChannelEvent;
+    ch.playerCb = onPlayerEvent;
     return ch;
   });
   const session = new Session(channels);
