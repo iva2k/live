@@ -28,8 +28,12 @@
     "src"
   ],
   "eslint.lintTask.enable": true,
-  "eslint.lintTask.options": "-c .eslintrc --ignore-path .eslintignore src",
+  "eslint.lintTask.options": "-c .eslintrc.js --ignore-path .eslintignore src",
+  "eslint.validate": [
+    "javascript"
+  ],
   "prettier.singleQuote": true,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
   "stylelint.enable": true,
   "css.validate": false,
   "less.validate": false,

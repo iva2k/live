@@ -1,4 +1,6 @@
 {
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [
     {
@@ -11,14 +13,14 @@
         "panel": "shared"
       },
       "problemMatcher": {
-        "owner": "custom", // This is not needed but, required by the problemMatcher Object
+        "owner": "custom",
         "pattern": {
-          "regexp": "^$" // This is not needed but, required by the problemMatcher Object
+          "regexp": "^$"
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "Compiling...", // Signals the begin of the Task
-          "endsPattern": "Compiled .*" // Signals that now the initialization of the task is complete
+          "beginsPattern": "Compiling...",
+          "endsPattern": "Compiled .*"
         }
       }
     },
@@ -88,6 +90,13 @@
       },
       "label": "npm: lint:css:fix",
       "detail": "style fix"
+    },
+    {
+      "type": "npm",
+      "label": "npm: storybook",
+      "script": "storybook",
+      "detail": "storybook",
+      "problemMatcher": []
     }
   ],
   "inputs": [

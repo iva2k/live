@@ -27,12 +27,15 @@
     "lint": "eslint --ignore-path .gitignore ./",
     "lint:fix": "eslint --ignore-path .gitignore ./ --fix",
     "lint:css:fix": "stylelint --ignore-path .gitignore --fix \"**/*.css\"",
+    "lint:log-rules": "npx eslint --print-config sec/index.js > log.eslintrc.json",
     "start": "npm run generate && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "graphql:update-schema": "apollo client:download-schema schema.graphql",
-    "generate": "graphql-codegen --config codegen.yml"
+    "generate": "graphql-codegen --config codegen.yml",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": ".eslintrc.js"
@@ -54,6 +57,12 @@
     "@graphql-codegen/fragment-matcher": "3.1.0",
     "@graphql-codegen/introspection": "2.1.0",
     "@playlyfe/gql": "^2.6.2",
+    "@storybook/addon-actions": "^6.3.7",
+    "@storybook/addon-essentials": "^6.3.7",
+    "@storybook/addon-links": "^6.3.7",
+    "@storybook/node-logger": "^6.3.7",
+    "@storybook/preset-create-react-app": "^3.2.0",
+    "@storybook/react": "^6.3.7",
     "apollo": "^2.33.4",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",

@@ -41,7 +41,7 @@ function Clip({ clip, showGears, stopClip, playClip }) {
   // Pattern: "avoid binding arrow functions in render"
   const ClipStopButton = () => {
     const onButtonClick = () => {
-      stopClip({ variables: { channelIdx: clip.channelIdx } });
+      stopClip?.({ variables: { channelIdx: clip.channelIdx } });
     };
     return (
       <Button variant="danger" onClick={onButtonClick} onContextMenu={handleRightClick}>
@@ -54,7 +54,7 @@ function Clip({ clip, showGears, stopClip, playClip }) {
   // Pattern: "avoid binding arrow functions in render"
   const ClipPlayButton = () => {
     const onButtonClick = () => {
-      playClip({ variables: { channelIdx: clip.channelIdx, clipId: clip.idx } });
+      playClip?.({ variables: { channelIdx: clip.channelIdx, clipId: clip.idx } });
     };
     return (
       <Button variant="success" onClick={onButtonClick} onContextMenu={handleRightClick}>
@@ -65,7 +65,7 @@ function Clip({ clip, showGears, stopClip, playClip }) {
   };
 
   const ClipButton = () => {
-    if (!clip.pattern && clip.clipStr === "''") {
+    if (!clip.pattern && (!clip.clipStr || clip.clipStr === "''")) {
       return <ClipDisabledButton />;
     }
 
