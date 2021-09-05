@@ -4,7 +4,7 @@ import { Col } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 // import * as Tone from 'tone';
 import Clip from './components/Clip';
-import ChannelState from './ChannelState';
+import ChannelState from './components/ChannelState';
 
 // import { GET_VOLUME, SET_VOLUME } from './gql';
 import { SET_VOLUME, STOP_CLIP, PLAY_CLIP } from './gql';
