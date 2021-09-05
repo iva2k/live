@@ -27,7 +27,7 @@ import { SET_VOLUME, STOP_CLIP, PLAY_CLIP } from './gql';
 //   return data?.channels[0]?.volume;
 // }
 
-function Channel({ channel, showGears }) {
+function Channel({ channel, showGears, setShowModal }) {
   const [setVolume] = useMutation(SET_VOLUME);
   const [stopClip] = useMutation(STOP_CLIP);
   const [playClip] = useMutation(PLAY_CLIP);
@@ -43,7 +43,16 @@ function Channel({ channel, showGears }) {
             clip.activeClipIdx = channel.activeClipIdx;
             clip.channelIdx = channel.idx;
             clip.channelName = channel.name;
-            return <Clip clip={clip} key={clip.idx} showGears={showGears} stopClip={stopClip} playClip={playClip} />;
+            return (
+              <Clip
+                clip={clip}
+                key={clip.idx}
+                showGears={showGears}
+                stopClip={stopClip}
+                playClip={playClip}
+                setShowModal={setShowModal}
+              />
+            );
           })}
         <div className="volume-slider">
           <input

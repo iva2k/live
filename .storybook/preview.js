@@ -1,4 +1,4 @@
-import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.css'; // TODO: Use public/bootstrap.min.css in Storybook
 import '../src/index.css';
 
 export const parameters = {

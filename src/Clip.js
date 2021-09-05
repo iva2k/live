@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
-import { ButtonGroup, Button, Modal } from 'react-bootstrap';
-import Editor from './Editor';
+import React from 'react';
+import { ButtonGroup, Button } from 'react-bootstrap';
 
-function Clip({ clip, showGears, stopClip, playClip }) {
-  const [showModal, setShowModal] = useState(false);
-
+function Clip({ clip, showGears, stopClip, playClip, setShowModal }) {
   // console.log('REDRAW: Channel %o Clip %o clip.pattern=%o', clip.channelIdx, clip.idx, clip.pattern);
 
   // useEffect(() => {
@@ -22,13 +19,10 @@ function Clip({ clip, showGears, stopClip, playClip }) {
   // Pattern: "avoid binding arrow functions in render"
   const handleRightClick = (e) => {
     e.preventDefault();
-    setShowModal(true);
+    setShowModal?.({ show: true, clip });
   };
   const onShowModal = () => {
-    setShowModal(true);
-  };
-  const onHideModal = () => {
-    setShowModal(false);
+    setShowModal?.({ show: true, clip });
   };
 
   // Pattern: "avoid binding arrow functions in render"
@@ -83,36 +77,16 @@ function Clip({ clip, showGears, stopClip, playClip }) {
     </Button>
   );
 
-  const EditorModal = () => (
-    <Modal show={showModal} onHide={onHideModal}>
-      <Modal.Header closeButton>
-        <Modal.Title>
-          Edit Clip {clip.idx} Channel {clip.channelIdx} {clip.channelName}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Editor clip={clip} />
-        {/* <textarea
-            id="clipCode"
-            onChange={e => setClipStr(e.target.value)}
-            value={clip.clipStr}
-          /> */}
-      </Modal.Body>
-    </Modal>
-  );
-
   return showGears ? (
     <div className="clip">
       <ButtonGroup>
         <ClipButton />
         <GearsButton />
       </ButtonGroup>
-      <EditorModal />
     </div>
   ) : (
     <div className="clip">
       <ClipButton />
-      <EditorModal />
     </div>
   );
 }

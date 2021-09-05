@@ -6,7 +6,7 @@ import { Query } from '@apollo/client/react/components';
 import { onError } from '@apollo/client/link/error';
 import { BiCheckCircle, BiInfoCircle, BiError, ImFileMusic, FiSave } from 'react-icons/all';
 import React, { useState } from 'react';
-import { Container, Button, Row, Col, Toast } from 'react-bootstrap';
+import { Container, Button, Row, Col, Modal, Toast } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Nav from 'react-bootstrap/Nav';
@@ -28,6 +28,7 @@ import introspectionResult from './schema-introspection.json';
 import Transport from './Transport';
 import Channel from './Channel';
 import Master from './Master';
+import Editor from './Editor';
 
 import getResolvers from './resolvers';
 
@@ -415,6 +416,7 @@ function App() {
   const [currentFileIsDirty, setCurrentFileIsDirty] = useState(currentFileState.isDirty);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
+  const [showModal, setShowModal] = useState({ show: false, clip: {} });
   const [bpmValue, setBpmValue] = useState(120.0);
   // TODO: connect bpm to scribbletune
 
@@ -519,6 +521,27 @@ function App() {
     }
     setCurrentFileIsDirty(false); // currentFileIsDirty = false;
   };
+
+  const onHideModal = () => {
+    setShowModal({ show: false, clip: {} });
+  };
+  const EditorModal = () => (
+    <Modal show={showModal.show} onHide={onHideModal}>
+      <Modal.Header closeButton>
+        <Modal.Title>
+          Edit Clip {showModal.clip?.idx} Channel {showModal.clip?.channelIdx} {showModal.clip?.channelName}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Editor clip={showModal.clip} />
+        {/* <textarea
+            id="clipCode"
+            onChange={e => setClipStr(e.target.value)}
+            value={clip.clipStr}
+          /> */}
+      </Modal.Body>
+    </Modal>
+  );
 
   let channelsCnt;
   let clipsCnt;
@@ -673,9 +696,13 @@ function App() {
               </Row>
               <Row>
                 {channelsCnt &&
-                  channels.map((channel) => <Channel channel={channel} key={channel.idx} showGears={showGears} />)}
+                  channels.map((channel) => (
+                    <Channel channel={channel} key={channel.idx} showGears={showGears} setShowModal={setShowModal} />
+                  ))}
                 <Master count={channelsCnt && clipsCnt} />
               </Row>
+
+              <EditorModal />
             </Container>
           );
         }}
