@@ -1,13 +1,9 @@
 import React from 'react';
 // import PropTypes from 'prop-types'; // npm install --save prop-types
 import { Col } from 'react-bootstrap';
-import { useMutation } from '@apollo/client';
 // import * as Tone from 'tone';
 import Clip from './components/Clip';
 import ChannelState from './components/ChannelState';
-
-// import { GET_VOLUME, SET_VOLUME } from './gql';
-import { SET_VOLUME, STOP_CLIP, PLAY_CLIP } from './gql';
 
 // React hook for scribbletune channel volume
 // function useScribbletuneGetVolume(channelIdx, store) {
@@ -27,10 +23,7 @@ import { SET_VOLUME, STOP_CLIP, PLAY_CLIP } from './gql';
 //   return data?.channels[0]?.volume;
 // }
 
-function Channel({ channel, showGears, setShowModal }) {
-  const [setVolume] = useMutation(SET_VOLUME);
-  const [stopClip] = useMutation(STOP_CLIP);
-  const [playClip] = useMutation(PLAY_CLIP);
+function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playClip }) {
   // console.log('REDRAW: Channel %o', channel);
   // useScribbletuneGetVolume(channel.idx); // Using volume here to set scribbletune channel volume is possiblem but this approach adds 10ms latency vs. observer in resolvers.js
   return (

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
-import { ApolloClient, ApolloProvider, InMemoryCache, useQuery } from '@apollo/client';
+import { ApolloClient, ApolloProvider, InMemoryCache, useQuery, useMutation } from '@apollo/client';
 import { ApolloLink } from '@apollo/client/core';
 import { Query } from '@apollo/client/react/components';
 import { onError } from '@apollo/client/link/error';
@@ -22,7 +22,7 @@ import Dropzone from 'react-dropzone';
 import Observable from 'zen-observable';
 import { saveAs } from 'file-saver';
 
-import { GET_IS_PLAYING, GET_DATA, WRITE_DATA } from './gql';
+import { GET_IS_PLAYING, GET_DATA, WRITE_DATA, SET_VOLUME, STOP_CLIP, PLAY_CLIP } from './gql';
 import introspectionResult from './schema-introspection.json';
 
 import Transport from './Transport';
@@ -411,6 +411,9 @@ function useScribbletuneIsPlaying(store) {
 
 function App() {
   // console.log('REDRAW: App');
+  const [setVolume] = useMutation(SET_VOLUME, { client });
+  const [stopClip] = useMutation(STOP_CLIP, { client });
+  const [playClip] = useMutation(PLAY_CLIP, { client });
 
   // Some local state variables (not using context or Apollo)
   const [currentFileIsDirty, setCurrentFileIsDirty] = useState(currentFileState.isDirty);
@@ -697,7 +700,15 @@ function App() {
               <Row>
                 {channelsCnt &&
                   channels.map((channel) => (
-                    <Channel channel={channel} key={channel.idx} showGears={showGears} setShowModal={setShowModal} />
+                    <Channel
+                      channel={channel}
+                      key={channel.idx}
+                      showGears={showGears}
+                      setShowModal={setShowModal}
+                      setVolume={setVolume}
+                      stopClip={stopClip}
+                      playClip={playClip}
+                    />
                   ))}
                 <Master count={channelsCnt && clipsCnt} />
               </Row>
