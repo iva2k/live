@@ -1,8 +1,7 @@
 import React from 'react';
 // import PropTypes from 'prop-types'; // npm install --save prop-types
 import { Col } from 'react-bootstrap';
-// import { useQuery } from '@apollo/client';
-import { Mutation } from '@apollo/client/react/components';
+import { useMutation } from '@apollo/client';
 // import * as Tone from 'tone';
 import Clip from './Clip';
 import ChannelState from './ChannelState';
@@ -29,6 +28,7 @@ import { SET_VOLUME } from './gql';
 // }
 
 function Channel({ channel, showGears }) {
+  const [setVolume] = useMutation(SET_VOLUME);
   // console.log('REDRAW: Channel %o', channel);
   // useScribbletuneGetVolume(channel.idx); // Using volume here to set scribbletune channel volume is possiblem but this approach adds 10ms latency vs. observer in resolvers.js
   return (
@@ -44,27 +44,23 @@ function Channel({ channel, showGears }) {
             return <Clip clip={clip} key={clip.idx} showGears={showGears} />;
           })}
         <div className="volume-slider">
-          <Mutation mutation={SET_VOLUME}>
-            {(setVolume /* , { data, loading, error } */) => (
-              <input
-                type="range"
-                orient="vertical"
-                min="-60"
-                max="6"
-                value={channel.volume}
-                step="1"
-                onChange={(e) => {
-                  setVolume({
-                    variables: {
-                      channelIdx: channel.idx,
-                      volume: e.target.value,
-                    },
-                  });
-                  // ? .then( res => { this.props.refetch(); })
-                }}
-              />
-            )}
-          </Mutation>
+          <input
+            type="range"
+            orient="vertical"
+            min="-60"
+            max="6"
+            value={channel.volume}
+            step="1"
+            onChange={(e) => {
+              setVolume({
+                variables: {
+                  channelIdx: channel.idx,
+                  volume: e.target.value,
+                },
+              });
+              // ? .then( res => { this.props.refetch(); })
+            }}
+          />
         </div>
         <h6 className="text-center">{channel.name}</h6>
         <ChannelState state={channel.state} error={channel.error} />

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Col, Button } from 'react-bootstrap';
 
-import { Mutation } from '@apollo/client/react/components';
+import { useMutation } from '@apollo/client';
 
 import { PLAY_ROW } from './gql';
 
@@ -11,6 +11,7 @@ const jsxLoop = function* jsxLoop(count, callback) {
 };
 
 function Master({ count }) {
+  const [playRow] = useMutation(PLAY_ROW);
   // console.log('REDRAW: Master');
   return (
     <>
@@ -19,14 +20,10 @@ function Master({ count }) {
         {[
           ...jsxLoop(count, (idx) => (
             <div className="clip" key={idx}>
-              <Mutation mutation={PLAY_ROW} variables={{ activeClipIdx: idx }}>
-                {(playRow) => (
-                  <Button variant="outline-dark" onClick={playRow}>
-                    {' '}
-                    &#9658;
-                  </Button>
-                )}
-              </Mutation>
+              <Button variant="outline-dark" onClick={() => playRow({ variables: { activeClipIdx: idx } })}>
+                {' '}
+                &#9658;
+              </Button>
             </div>
           )),
         ]}
