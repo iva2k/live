@@ -24,39 +24,72 @@ function Clip(props) {
   //   /*eslint-enable */
   // });
 
+  // Pattern: "avoid binding arrow functions in render"
   const handleRightClick = (e) => {
     e.preventDefault();
     setShowModal(true);
   };
-  const getClipButton = () => {
-    if (!clip.pattern && clip.clipStr === "''") {
-      return (
-        <Button variant="outline-secondary" onContextMenu={handleRightClick}>
-          &#x25CB;
-        </Button>
-      );
-    }
+  const onShowModal = () => {
+    setShowModal(true);
+  };
+  const onHideModal = () => {
+    setShowModal(false);
+  };
 
-    if (clip.activeClipIdx === clip.idx) {
-      // Clip is playing
-      return (
-        <Button variant="danger" onClick={stopClip} onContextMenu={handleRightClick}>
-          {' '}
-          &#9632;
-        </Button>
-      );
-    }
-    // Clip is stopped
+  // Pattern: "avoid binding arrow functions in render"
+  const ClipDisabledButton = () => (
+    <Button variant="outline-secondary" onContextMenu={handleRightClick}>
+      &#x25CB;
+    </Button>
+  );
+
+  // Pattern: "avoid binding arrow functions in render"
+  const ClipStopButton = () => {
+    const onButtonClick = () => {
+      stopClip({ variables: { channelIdx: clip.channelIdx } });
+    };
     return (
-      <Button variant="success" onClick={playClip} onContextMenu={handleRightClick}>
+      <Button variant="danger" onClick={onButtonClick} onContextMenu={handleRightClick}>
+        {' '}
+        &#9632;
+      </Button>
+    );
+  };
+
+  // Pattern: "avoid binding arrow functions in render"
+  const ClipPlayButton = () => {
+    const onButtonClick = () => {
+      playClip({ variables: { channelIdx: clip.channelIdx, clipId: clip.idx } });
+    };
+    return (
+      <Button variant="success" onClick={onButtonClick} onContextMenu={handleRightClick}>
         {' '}
         &#9658;
       </Button>
     );
   };
 
-  const getModal = () => (
-    <Modal show={showModal} onHide={() => setShowModal(false)}>
+  const ClipButton = () => {
+    if (!clip.pattern && clip.clipStr === "''") {
+      return <ClipDisabledButton />;
+    }
+
+    if (clip.activeClipIdx === clip.idx) {
+      // Clip is playing
+      return <ClipStopButton />;
+    }
+    // Clip is stopped
+    return <ClipPlayButton />;
+  };
+
+  const GearsButton = () => (
+    <Button variant={clip.pattern || clip.clipStr ? 'secondary' : 'outline-secondary'} onClick={onShowModal}>
+      ⚙
+    </Button>
+  );
+
+  const EditorModal = () => (
+    <Modal show={showModal} onHide={onHideModal}>
       <Modal.Header closeButton>
         <Modal.Title>
           Edit Clip {clip.idx} Channel {clip.channelIdx} {clip.channelName}
@@ -76,21 +109,15 @@ function Clip(props) {
   return showGears ? (
     <div className="clip">
       <ButtonGroup>
-        {getClipButton()}
-        <Button
-          variant={clip.pattern || clip.clipStr ? 'secondary' : 'outline-secondary'}
-          onClick={() => setShowModal(true)}
-          dangerouslySetInnerHTML={{
-            __html: '⚙',
-          }}
-        />
+        <ClipButton />
+        <GearsButton />
       </ButtonGroup>
-      {getModal()}
+      <EditorModal />
     </div>
   ) : (
     <div className="clip">
-      {getClipButton()}
-      {getModal()}
+      <ClipButton />
+      <EditorModal />
     </div>
   );
 }
