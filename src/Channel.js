@@ -7,7 +7,7 @@ import Clip from './Clip';
 import ChannelState from './ChannelState';
 
 // import { GET_VOLUME, SET_VOLUME } from './gql';
-import { SET_VOLUME } from './gql';
+import { SET_VOLUME, STOP_CLIP, PLAY_CLIP } from './gql';
 
 // React hook for scribbletune channel volume
 // function useScribbletuneGetVolume(channelIdx, store) {
@@ -29,6 +29,8 @@ import { SET_VOLUME } from './gql';
 
 function Channel({ channel, showGears }) {
   const [setVolume] = useMutation(SET_VOLUME);
+  const [stopClip] = useMutation(STOP_CLIP);
+  const [playClip] = useMutation(PLAY_CLIP);
   // console.log('REDRAW: Channel %o', channel);
   // useScribbletuneGetVolume(channel.idx); // Using volume here to set scribbletune channel volume is possiblem but this approach adds 10ms latency vs. observer in resolvers.js
   return (
@@ -41,7 +43,7 @@ function Channel({ channel, showGears }) {
             clip.activeClipIdx = channel.activeClipIdx;
             clip.channelIdx = channel.idx;
             clip.channelName = channel.name;
-            return <Clip clip={clip} key={clip.idx} showGears={showGears} />;
+            return <Clip clip={clip} key={clip.idx} showGears={showGears} stopClip={stopClip} playClip={playClip} />;
           })}
         <div className="volume-slider">
           <input

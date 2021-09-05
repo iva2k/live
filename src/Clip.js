@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
 import { ButtonGroup, Button, Modal } from 'react-bootstrap';
-import { STOP_CLIP, PLAY_CLIP } from './gql';
 import Editor from './Editor';
 
-function Clip(props) {
-  const { clip, showGears } = props;
+function Clip({ clip, showGears, stopClip, playClip }) {
   const [showModal, setShowModal] = useState(false);
-  const [stopClip] = useMutation(STOP_CLIP, { variables: { channelIdx: clip.channelIdx } });
-  const [playClip] = useMutation(PLAY_CLIP, { variables: { channelIdx: clip.channelIdx, clipId: clip.idx } });
 
   // console.log('REDRAW: Channel %o Clip %o clip.pattern=%o', clip.channelIdx, clip.idx, clip.pattern);
 
