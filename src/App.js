@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */ // TODO: Fix arrow function props
 /* eslint-disable react/jsx-props-no-spreading */
 
 import { ApolloClient, ApolloProvider, InMemoryCache, useQuery, useMutation } from '@apollo/client';

@@ -1,5 +1,87 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
+
+/**
+ * Implementation Notes
+ * Due to the app sensitivity to latency, we strive to tighten the JS event loop.
+ * Any unnecessary re-renders are very undesirable, even if delay is very little.
+ * It explains the choice of Pattern: "avoid binding arrow functions in render"
+ * which uses sub-components (downside: prop drilling)
+ * and useCallback() hook to memoize event handlers.
+ * @see https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md
+ // TODO: Use shouldComponentUpdate
+ */
+
+// Sub-Component
+const ClipDisabledButton = ({ onContextMenu }) => (
+  <Button variant="outline-secondary" onContextMenu={onContextMenu}>
+    &#x25CB;
+  </Button>
+);
+
+// Sub-Component
+const ClipStopButton = ({ clip, stopClip, onContextMenu }) => {
+  // Pattern: "avoid binding arrow functions in render"
+  const onButtonClick = useCallback(
+    () => {
+      stopClip?.({ variables: { channelIdx: clip.channelIdx } });
+    },
+    [stopClip, clip.channelIdx] // Array of dependencies for which the memoization should update
+  );
+  return (
+    <Button variant="danger" onClick={onButtonClick} onContextMenu={onContextMenu}>
+      {' '}
+      &#9632;
+    </Button>
+  );
+};
+
+// Sub-Component
+const ClipPlayButton = ({ clip, playClip, onContextMenu }) => {
+  // Pattern: "avoid binding arrow functions in render"
+  const onButtonClick = useCallback(
+    () => {
+      playClip?.({ variables: { channelIdx: clip.channelIdx, clipId: clip.idx } });
+    },
+    [playClip, clip.channelIdx, clip.idx] // Array of dependencies for which the memoization should update
+  );
+  return (
+    <Button variant="success" onClick={onButtonClick} onContextMenu={onContextMenu}>
+      {' '}
+      &#9658;
+    </Button>
+  );
+};
+
+// Sub-Component
+const ClipButton = ({ clip, playClip, stopClip, onContextMenu }) => {
+  if (!clip.pattern && (!clip.clipStr || clip.clipStr === "''")) {
+    return <ClipDisabledButton onContextMenu={onContextMenu} />;
+  }
+
+  if (clip.activeClipIdx === clip.idx) {
+    // Clip is playing
+    return <ClipStopButton clip={clip} stopClip={stopClip} onContextMenu={onContextMenu} />;
+  }
+  // Clip is stopped
+  return <ClipPlayButton clip={clip} playClip={playClip} onContextMenu={onContextMenu} />;
+};
+
+// Sub-Component
+const GearsButton = ({ clip, setShowModal }) => {
+  // Pattern: "avoid binding arrow functions in render"
+  const onShowModal = useCallback(
+    () => {
+      setShowModal?.({ show: true, clip });
+    },
+    [setShowModal, clip] // Array of dependencies for which the memoization should update
+  );
+  return (
+    <Button variant={clip.pattern || clip.clipStr ? 'secondary' : 'outline-secondary'} onClick={onShowModal}>
+      ⚙
+    </Button>
+  );
+};
 
 function Clip({ clip, showGears, stopClip, playClip, setShowModal }) {
   // console.log('REDRAW: Channel %o Clip %o clip.pattern=%o', clip.channelIdx, clip.idx, clip.pattern);
@@ -17,76 +99,24 @@ function Clip({ clip, showGears, stopClip, playClip, setShowModal }) {
   // });
 
   // Pattern: "avoid binding arrow functions in render"
-  const handleRightClick = (e) => {
-    e.preventDefault();
-    setShowModal?.({ show: true, clip });
-  };
-  const onShowModal = () => {
-    setShowModal?.({ show: true, clip });
-  };
-
-  // Pattern: "avoid binding arrow functions in render"
-  const ClipDisabledButton = () => (
-    <Button variant="outline-secondary" onContextMenu={handleRightClick}>
-      &#x25CB;
-    </Button>
-  );
-
-  // Pattern: "avoid binding arrow functions in render"
-  const ClipStopButton = () => {
-    const onButtonClick = () => {
-      stopClip?.({ variables: { channelIdx: clip.channelIdx } });
-    };
-    return (
-      <Button variant="danger" onClick={onButtonClick} onContextMenu={handleRightClick}>
-        {' '}
-        &#9632;
-      </Button>
-    );
-  };
-
-  // Pattern: "avoid binding arrow functions in render"
-  const ClipPlayButton = () => {
-    const onButtonClick = () => {
-      playClip?.({ variables: { channelIdx: clip.channelIdx, clipId: clip.idx } });
-    };
-    return (
-      <Button variant="success" onClick={onButtonClick} onContextMenu={handleRightClick}>
-        {' '}
-        &#9658;
-      </Button>
-    );
-  };
-
-  const ClipButton = () => {
-    if (!clip.pattern && (!clip.clipStr || clip.clipStr === "''")) {
-      return <ClipDisabledButton />;
-    }
-
-    if (clip.activeClipIdx === clip.idx) {
-      // Clip is playing
-      return <ClipStopButton />;
-    }
-    // Clip is stopped
-    return <ClipPlayButton />;
-  };
-
-  const GearsButton = () => (
-    <Button variant={clip.pattern || clip.clipStr ? 'secondary' : 'outline-secondary'} onClick={onShowModal}>
-      ⚙
-    </Button>
+  const handleRightClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      setShowModal?.({ show: true, clip });
+    },
+    [setShowModal, clip] // Array of dependencies for which the memoization should update
   );
 
   return showGears ? (
     <div className="clip">
       <ButtonGroup>
-        <ClipButton />
-        <GearsButton />
+        <ClipButton clip={clip} playClip={playClip} stopClip={stopClip} onContextMenu={handleRightClick} />
+        <GearsButton clip={clip} setShowModal={setShowModal} />
       </ButtonGroup>
     </div>
   ) : (
     <div className="clip">
-      <ClipButton />
+      <ClipButton clip={clip} playClip={playClip} stopClip={stopClip} onContextMenu={handleRightClick} />
     </div>
   );
 }

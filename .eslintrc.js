@@ -123,6 +123,16 @@ module.exports = {
       },
     ],
     'react/forbid-prop-types': 0, // TODO: 'react/forbid-prop-types': 'warn',
+    'react/jsx-no-bind': [
+      'error',
+      {
+        ignoreRefs: true,
+        allowArrowFunctions: false,
+        allowFunctions: false,
+        allowBind: false,
+        ignoreDOMComponents: false,
+      },
+    ],
     'react/no-unescaped-entities': 'warn',
     'react/prefer-stateless-function': [
       1,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 // import PropTypes from 'prop-types'; // npm install --save prop-types
 import { Col } from 'react-bootstrap';
 // import * as Tone from 'tone';
@@ -26,6 +26,21 @@ import ChannelState from './components/ChannelState';
 function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playClip }) {
   // console.log('REDRAW: Channel %o', channel);
   // useScribbletuneGetVolume(channel.idx); // Using volume here to set scribbletune channel volume is possiblem but this approach adds 10ms latency vs. observer in resolvers.js
+
+  // Pattern: "avoid binding arrow functions in render"
+  const onVolume = useCallback(
+    (e) => {
+      setVolume({
+        variables: {
+          channelIdx: channel.idx,
+          volume: e.target.value,
+        },
+      });
+      // ? .then( res => { this.props.refetch(); })
+    },
+    [setVolume, channel.idx] // Array of dependencies for which the memoization should update
+  );
+
   return (
     <>
       <Col>
@@ -48,23 +63,7 @@ function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playCl
             );
           })}
         <div className="volume-slider">
-          <input
-            type="range"
-            orient="vertical"
-            min="-60"
-            max="6"
-            value={channel.volume}
-            step="1"
-            onChange={(e) => {
-              setVolume({
-                variables: {
-                  channelIdx: channel.idx,
-                  volume: e.target.value,
-                },
-              });
-              // ? .then( res => { this.props.refetch(); })
-            }}
-          />
+          <input type="range" orient="vertical" min="-60" max="6" value={channel.volume} step="1" onChange={onVolume} />
         </div>
         <h6 className="text-center">{channel.name}</h6>
         <ChannelState state={channel.state} error={channel.error} />
