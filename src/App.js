@@ -23,7 +23,7 @@ import Dropzone from 'react-dropzone';
 import Observable from 'zen-observable';
 import { saveAs } from 'file-saver';
 
-import { GET_IS_PLAYING, GET_DATA, WRITE_DATA, SET_VOLUME, STOP_CLIP, PLAY_CLIP } from './gql';
+import { GET_IS_PLAYING, GET_DATA, WRITE_DATA, SET_VOLUME, STOP_CLIP, PLAY_CLIP, PLAY_ROW } from './gql';
 import introspectionResult from './schema-introspection.json';
 
 import Transport from './Transport';
@@ -415,6 +415,7 @@ function App() {
   const [setVolume] = useMutation(SET_VOLUME, { client });
   const [stopClip] = useMutation(STOP_CLIP, { client });
   const [playClip] = useMutation(PLAY_CLIP, { client });
+  const [playRow] = useMutation(PLAY_ROW, { client });
 
   // Some local state variables (not using context or Apollo)
   const [currentFileIsDirty, setCurrentFileIsDirty] = useState(currentFileState.isDirty);
@@ -711,7 +712,7 @@ function App() {
                       playClip={playClip}
                     />
                   ))}
-                <Master count={channelsCnt && clipsCnt} />
+                <Master count={channelsCnt && clipsCnt} playRow={playRow} />
               </Row>
 
               <EditorModal />
