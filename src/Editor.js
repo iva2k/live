@@ -1,14 +1,14 @@
-// import React, { useState } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 // import { Row, Col } from 'react-bootstrap';
 import Note from './Note';
 
 const Editor = (props) => {
+  const [pattern, setPattern] = useState('-');
   const { clip } = props;
   const noteCount = clip.pattern?.length || 4;
   const noteComps = [];
   for (let i = 0; i < noteCount; i += 1) {
-    noteComps.push(<Note key={i} />);
+    noteComps.push(<Note key={i} pattern={pattern} setPattern={setPattern} />);
   }
 
   return (
