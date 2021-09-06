@@ -35,6 +35,7 @@ import {
 } from './gql';
 import introspectionResult from './schema-introspection.json';
 
+import NumberWithSpinners from './components/NumberWithSpinners';
 import Transport from './components/Transport';
 import Channel from './components/Channel';
 import Master from './components/Master';
@@ -46,8 +47,6 @@ import { getToneMonoSynth, samplers } from './sounds';
 import PlayOnJZZ from './PlayOnJZZ';
 import PlayOnSoundfontPlayer from './PlayOnSoundfontPlayer';
 import PlayOnWebMidi from './PlayOnWebMidi';
-
-import NumberWithSpinners from './components/NumberWithSpinners';
 
 // import exampleTrack from './tracks/dummy';
 // import exampleTrack from './tracks/init';

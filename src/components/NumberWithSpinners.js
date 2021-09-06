@@ -42,7 +42,7 @@
  *
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import './NumberWithSpinners.css';
@@ -73,86 +73,84 @@ function NumberWithSpinners({
   // With    evt.target.setPointerCapture() stops all enter/leave events from being delivered.
   // Without evt.target.setPointerCapture() up events are not delivered when pointer is outside of button.
   // Perhaps can attach mouseup listener to the body element and work without evt.target.setPointerCapture()
-  const handleSpinnerButtonPointerEvents = (evt) => {
-    // console.log('handleSpinnerButtonPointerEvents(evt.type=%o evt.button=%o evt.target=%o evt.srcElement=%o) repeatingBtnPointerIn=%o repeatingBtnClickCnt=%o', evt.type, evt.button, evt.target, evt.srcElement, repeatingBtnPointerIn, repeatingBtnClickCnt);
+  const handleSpinnerButtonPointerEvents = useCallback(
+    (evt) => {
+      // console.log('handleSpinnerButtonPointerEvents(evt.type=%o evt.button=%o evt.target=%o evt.srcElement=%o) repeatingBtnPointerIn=%o repeatingBtnClickCnt=%o', evt.type, evt.button, evt.target, evt.srcElement, repeatingBtnPointerIn, repeatingBtnClickCnt);
 
-    // Track pointer regardless of which mouse button
-    if (evt.type === 'pointerenter' || evt.type === 'mouseenter' || evt.type === 'mouseover') {
-      repeatingBtnPointerIn = true;
-    } else if (
-      evt.type === 'pointerout' ||
-      evt.type === 'pointerleave' ||
-      evt.type === 'mouseleave' ||
-      evt.type === 'mouseout'
-    ) {
-      repeatingBtnPointerIn = false;
-    }
+      // Track pointer regardless of which mouse button
+      if (evt.type === 'pointerenter' || evt.type === 'mouseenter' || evt.type === 'mouseover') {
+        repeatingBtnPointerIn = true;
+      } else if (
+        evt.type === 'pointerout' ||
+        evt.type === 'pointerleave' ||
+        evt.type === 'mouseleave' ||
+        evt.type === 'mouseout'
+      ) {
+        repeatingBtnPointerIn = false;
+      }
 
-    // The rest of events of interest should be for left-click
-    if (evt.button !== 0) {
-      return;
-    }
+      // The rest of events of interest should be for left-click
+      if (evt.button !== 0) {
+        return;
+      }
 
-    if (evt.type === 'pointerdown') {
-      evt.preventDefault();
-      // console.log('click first');
-      // evt.target.click();
-      repeatingBtnPointerIn = true;
-      repeatingBtnClickCnt = 0;
-      evt.target.setPointerCapture(evt.pointerId);
+      if (evt.type === 'pointerdown') {
+        evt.preventDefault();
+        // console.log('click first');
+        // evt.target.click();
+        repeatingBtnPointerIn = true;
+        repeatingBtnClickCnt = 0;
+        evt.target.setPointerCapture(evt.pointerId);
 
-      clearTimeout(repeatingBtnTimeoutId);
-      clearInterval(repeatingBtnIntervalId);
-
-      // Start repeating with slow interval
-      repeatingBtnIntervalId = setInterval(() => {
-        if (repeatingBtnPointerIn) {
-          // console.log('click repeat slow repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
-          evt.target.click();
-          repeatingBtnClickCnt += 1;
-        }
-      }, repeatingBtnSlowTimeMs);
-
-      // Set delay to switch repeating to fast interval
-      repeatingBtnTimeoutId = setTimeout(() => {
-        // Change repeating to fast interval
+        clearTimeout(repeatingBtnTimeoutId);
         clearInterval(repeatingBtnIntervalId);
+
+        // Start repeating with slow interval
         repeatingBtnIntervalId = setInterval(() => {
           if (repeatingBtnPointerIn) {
-            // console.log('click repeat fast repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
+            // console.log('click repeat slow repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
             evt.target.click();
             repeatingBtnClickCnt += 1;
           }
-        }, repeatingBtnFastTimeMs);
-      }, repeatingBtnFastDelayMs);
-    } else if (evt.type === 'pointerup' || evt.type === 'pointercancel') {
-      // evt.preventDefault();
-      evt.target.releasePointerCapture(evt.pointerId);
-      clearTimeout(repeatingBtnTimeoutId);
-      // console.log('after clearTimeout(repeatingBtnTimeoutId)');
-      clearInterval(repeatingBtnIntervalId);
-      // console.log('after clearInterval(repeatingBtnIntervalId)');
-      repeatingBtnIntervalId = undefined;
-      repeatingBtnTimeoutId = undefined;
-      if (repeatingBtnClickCnt !== 0) {
+        }, repeatingBtnSlowTimeMs);
+
+        // Set delay to switch repeating to fast interval
+        repeatingBtnTimeoutId = setTimeout(() => {
+          // Change repeating to fast interval
+          clearInterval(repeatingBtnIntervalId);
+          repeatingBtnIntervalId = setInterval(() => {
+            if (repeatingBtnPointerIn) {
+              // console.log('click repeat fast repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
+              evt.target.click();
+              repeatingBtnClickCnt += 1;
+            }
+          }, repeatingBtnFastTimeMs);
+        }, repeatingBtnFastDelayMs);
+      } else if (evt.type === 'pointerup' || evt.type === 'pointercancel') {
         // evt.preventDefault();
-      } else if (repeatingBtnPointerIn) {
-        // console.log('click once repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
-        repeatingBtnClickCnt += 1;
+        evt.target.releasePointerCapture(evt.pointerId);
+        clearTimeout(repeatingBtnTimeoutId);
+        // console.log('after clearTimeout(repeatingBtnTimeoutId)');
+        clearInterval(repeatingBtnIntervalId);
+        // console.log('after clearInterval(repeatingBtnIntervalId)');
+        repeatingBtnIntervalId = undefined;
+        repeatingBtnTimeoutId = undefined;
+        if (repeatingBtnClickCnt !== 0) {
+          // evt.preventDefault();
+        } else if (repeatingBtnPointerIn) {
+          // console.log('click once repeatingBtnPointerIn=%o', repeatingBtnPointerIn);
+          repeatingBtnClickCnt += 1;
+        }
+        repeatingBtnPointerIn = false;
       }
-      repeatingBtnPointerIn = false;
-    }
-  };
+    },
+    [repeatingBtnFastDelayMs, repeatingBtnFastTimeMs, repeatingBtnSlowTimeMs]
+  );
 
   // TODO: Implement validations (range)
-  const handleBpmDecrEvent = () => {
-    setValue(value - 1);
-    // console.log('handleBpmDecrEvent() %o', value);
-  };
-  const handleBpmIncrEvent = () => {
-    setValue(value + 1);
-    // console.log('handleBpmIncrEvent() %o', value);
-  };
+  const handleBpmDecrEvent = useCallback(() => setValue?.(value - 1), [setValue, value]);
+  const handleBpmIncrEvent = useCallback(() => setValue?.(value + 1), [setValue, value]);
+  const onSetValue = useCallback((event) => setValue?.(+event.target.value), [setValue]);
 
   const containerProps = { ...otherProps };
   containerProps.className = `${containerProps.className || ''} numberspinner my-0 my-auto`.trim();
@@ -187,7 +185,7 @@ function NumberWithSpinners({
             htmlSize="5"
             name={controlId}
             value={value}
-            onChange={(event) => setValue(+event.target.value)}
+            onChange={onSetValue}
           />
           <div as="div" className="mx-0 my-auto px-0 py-0">
             <Button
