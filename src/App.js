@@ -27,7 +27,7 @@ import { GET_IS_PLAYING, GET_DATA, WRITE_DATA, SET_VOLUME, STOP_CLIP, PLAY_CLIP 
 import introspectionResult from './schema-introspection.json';
 
 import Transport from './Transport';
-import Channel from './Channel';
+import Channel from './components/Channel';
 import Master from './Master';
 import Editor from './Editor';
 

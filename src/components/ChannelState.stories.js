@@ -1,10 +1,12 @@
 import React from 'react';
+import { Col } from 'react-bootstrap';
 
 import ChannelState from './ChannelState';
 
 export default {
   component: ChannelState,
   title: 'ChannelState',
+  decorators: [(story) => <Col>{story()}</Col>],
 };
 
 // eslint-disable-next-line react/jsx-props-no-spreading

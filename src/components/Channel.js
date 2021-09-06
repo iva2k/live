@@ -2,8 +2,8 @@ import React, { useCallback } from 'react';
 // import PropTypes from 'prop-types'; // npm install --save prop-types
 import { Col } from 'react-bootstrap';
 // import * as Tone from 'tone';
-import Clip from './components/Clip';
-import ChannelState from './components/ChannelState';
+import Clip from './Clip';
+import ChannelState from './ChannelState';
 
 // React hook for scribbletune channel volume
 // function useScribbletuneGetVolume(channelIdx, store) {
@@ -30,7 +30,7 @@ function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playCl
   // Pattern: "avoid binding arrow functions in render"
   const onVolume = useCallback(
     (e) => {
-      setVolume({
+      setVolume?.({
         variables: {
           channelIdx: channel.idx,
           volume: e.target.value,
