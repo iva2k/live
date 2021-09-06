@@ -23,7 +23,16 @@ import Dropzone from 'react-dropzone';
 import Observable from 'zen-observable';
 import { saveAs } from 'file-saver';
 
-import { GET_IS_PLAYING, GET_DATA, WRITE_DATA, SET_VOLUME, STOP_CLIP, PLAY_CLIP, PLAY_ROW } from './gql';
+import {
+  GET_IS_PLAYING,
+  GET_DATA,
+  WRITE_DATA,
+  SET_VOLUME,
+  STOP_CLIP,
+  PLAY_CLIP,
+  PLAY_ROW,
+  START_STOP_TRACK,
+} from './gql';
 import introspectionResult from './schema-introspection.json';
 
 import Transport from './Transport';
@@ -416,6 +425,7 @@ function App() {
   const [stopClip] = useMutation(STOP_CLIP, { client });
   const [playClip] = useMutation(PLAY_CLIP, { client });
   const [playRow] = useMutation(PLAY_ROW, { client });
+  const [startStopTrack] = useMutation(START_STOP_TRACK, { client });
 
   // Some local state variables (not using context or Apollo)
   const [currentFileIsDirty, setCurrentFileIsDirty] = useState(currentFileState.isDirty);
@@ -693,7 +703,7 @@ function App() {
                       </Navbar.Text>
 
                       <Navbar.Text className="transport">
-                        <Transport isPlaying={isPlaying} />
+                        <Transport isPlaying={isPlaying} startStopTrack={startStopTrack} />
                       </Navbar.Text>
                     </Navbar.Collapse>
                   </Navbar>
