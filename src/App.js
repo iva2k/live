@@ -39,7 +39,7 @@ import NumberWithSpinners from './components/NumberWithSpinners';
 import Transport from './components/Transport';
 import Channel from './components/Channel';
 import Master from './components/Master';
-import Editor from './Editor';
+import ClipEditor from './components/ClipEditor';
 
 import getResolvers from './resolvers';
 
@@ -539,7 +539,7 @@ function App() {
   const onHideModal = () => {
     setShowModal({ show: false, clip: {} });
   };
-  const EditorModal = () => (
+  const ClipEditorModal = () => (
     <Modal show={showModal.show} onHide={onHideModal}>
       <Modal.Header closeButton>
         <Modal.Title>
@@ -547,7 +547,7 @@ function App() {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Editor clip={showModal.clip} />
+        <ClipEditor clip={showModal.clip} />
         {/* <textarea
             id="clipCode"
             onChange={e => setClipStr(e.target.value)}
@@ -724,7 +724,7 @@ function App() {
                 <Master count={channelsCnt && clipsCnt} playRow={playRow} />
               </Row>
 
-              <EditorModal />
+              <ClipEditorModal />
             </Container>
           );
         }}

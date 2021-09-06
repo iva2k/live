@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 // import { Row, Col } from 'react-bootstrap';
 import Note from './Note';
 
-const Editor = (props) => {
+// TODO: WIP, need working implementation.
+const ClipEditor = (props) => {
   const [pattern, setPattern] = useState('-');
   const { clip } = props;
   const noteCount = clip.pattern?.length || 4;
@@ -30,4 +31,4 @@ const Editor = (props) => {
   );
 };
 
-export default Editor;
+export default ClipEditor;

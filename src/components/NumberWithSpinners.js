@@ -67,6 +67,7 @@ function NumberWithSpinners({
   children,
   ...otherProps
 }) {
+  // Pattern: "avoid binding arrow functions in render"
   // Handler for mouse/pointer tracking in number spinner control (bpm)
   // Produce repeating clicks action on the button while mouse is being held down.
   // TODO: Find a way to stop repeating action while pointer being pressed down and leaves the button.
@@ -148,6 +149,7 @@ function NumberWithSpinners({
   );
 
   // TODO: Implement validations (range)
+  // Pattern: "avoid binding arrow functions in render"
   const handleBpmDecrEvent = useCallback(() => setValue?.(value - 1), [setValue, value]);
   const handleBpmIncrEvent = useCallback(() => setValue?.(value + 1), [setValue, value]);
   const onSetValue = useCallback((event) => setValue?.(+event.target.value), [setValue]);
