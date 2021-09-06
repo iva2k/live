@@ -4,8 +4,8 @@ import { ButtonGroup, Button, Col } from 'react-bootstrap';
 function Transport({ isPlaying, startStopTrack }) {
   // console.log('REDRAW: Transport');
 
-  const onStop = useCallback(() => startStopTrack({ variables: { isPlaying: false } }), [startStopTrack]);
-  const onStart = useCallback(() => startStopTrack({ variables: { isPlaying: true } }), [startStopTrack]);
+  const onStop = useCallback(() => startStopTrack?.({ variables: { isPlaying: false } }), [startStopTrack]);
+  const onStart = useCallback(() => startStopTrack?.({ variables: { isPlaying: true } }), [startStopTrack]);
 
   return (
     <Col className="transport">

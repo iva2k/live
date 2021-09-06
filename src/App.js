@@ -35,7 +35,7 @@ import {
 } from './gql';
 import introspectionResult from './schema-introspection.json';
 
-import Transport from './Transport';
+import Transport from './components/Transport';
 import Channel from './components/Channel';
 import Master from './components/Master';
 import Editor from './Editor';
