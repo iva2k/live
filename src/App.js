@@ -28,7 +28,7 @@ import introspectionResult from './schema-introspection.json';
 
 import Transport from './Transport';
 import Channel from './components/Channel';
-import Master from './Master';
+import Master from './components/Master';
 import Editor from './Editor';
 
 import getResolvers from './resolvers';
