@@ -49,26 +49,19 @@ const getResolvers = (mutationObservers) => ({
         query: GET_DATA,
       });
 
-      const data = {
-        ...existingData,
-        tempoBpm: +tempoBpm,
-      };
-
-      // console.log(
-      //   'mutationResolverStartStopTrack(%o) @%o existingData.isPlaying=%o',
-      //   isPlaying,
-      //   Tone.now(),
-      //   existingData.isPlaying
-      // );
-
-      // // If "Start" is requested then start it only if not already started
       mutationObservers.setTransportTempo(tempoBpm);
+
+      const newData = produce(existingData, (draftState) => {
+        draftState.tempoBpm = +tempoBpm;
+      });
+      // immer.produce() preserves the object un-modified parts
 
       cache.writeQuery({
         query: WRITE_DATA,
-        data,
+        data: newData,
         // optimisticResponse: { tempoBpm, __typename: 'Track' }, // This does not seem to make any difference. // The intent is to have Apollo push changes to observers right away. Should have effect when there's a network connection (if ever)
       });
+
       return null;
     },
 
@@ -77,11 +70,6 @@ const getResolvers = (mutationObservers) => ({
         query: GET_DATA,
       });
 
-      const data = {
-        ...existingData,
-        isPlaying,
-      };
-
       // console.log(
       //   'mutationResolverStartStopTrack(%o) @%o existingData.isPlaying=%o',
       //   isPlaying,
@@ -89,27 +77,36 @@ const getResolvers = (mutationObservers) => ({
       //   existingData.isPlaying
       // );
 
-      // // If "Start" is requested then start it only if not already started
+      // If "Start" is requested then start it only if not already started
       if (!existingData.isPlaying && isPlaying) {
         // console.log('mutationResolverStartStopTrack(START) @%o', Tone.now());
         mutationObservers.startTransport();
         mutationObservers.setTransportTempo(existingData.tempoBpm);
       }
 
-      // If "Stop" is requested then start it only if not already started
+      const newData = produce(existingData, (draftState) => {
+        draftState.channels.map((ch, idx) => {
+          // TODO: No need to stop any playing clips - stopping transport will effectively cancel all future events
+          if (ch.activeClipIdx >= 0) {
+            mutationObservers.stopChannelClip(idx, ch.activeClipIdx);
+          }
+          ch.activeClipIdx = -1;
+          return ch;
+        });
+        draftState.isPlaying = isPlaying;
+      });
+      // immer.produce() preserves the object un-modified parts
+
+      // If "Stop" is requested then stop it only if not already stopped
       if (existingData.isPlaying && !isPlaying) {
-        data.channels = existingData.channels.map((ch) =>
-          // No need to stop any playing clips - stopping transport will effectively cancel all future events
-          // mutationObservers.stopChannelClip(ch.idx, ch.activeClipIdx);
-          ({ ...ch, activeClipIdx: -1 })
-        );
         // console.log('mutationResolverStartStopTrack(STOP) @%o', Tone.now()); // Compare time between direct intercept (here) and called from React hook
         mutationObservers.stopTransport();
       }
+
       cache.writeQuery({
         query: WRITE_DATA,
-        data,
-        // optimisticResponse: { isPlaying, __typename: 'Track' }, // This does not seem to make any difference. // The intent is to have Apollo push changes to observers right away. Should have effect when there's a network connection (if ever)
+        data: newData,
+        // optimisticResponse: { isPlaying, __typename: '??' }, // This does not seem to make any difference. // The intent is to have Apollo push changes to observers right away. Should have effect when there's a network connection (if ever)
       });
       return null;
     },
@@ -123,17 +120,23 @@ const getResolvers = (mutationObservers) => ({
         mutationObservers.setTransportTempo(existingData.tempoBpm);
       }
 
-      const newChannels = existingData.channels.map((ch, idx) => {
-        mutationObservers.startChannelClip(idx, activeClipIdx);
-        mutationObservers.setChannelVolume(idx, ch.volume);
-        return {
-          ...ch,
-          activeClipIdx,
-        };
+      const newData = produce(existingData, (draftState) => {
+        draftState.channels.map((ch, idx) => {
+          if (ch.activeClipIdx >= 0) {
+            mutationObservers.stopChannelClip(idx, ch.activeClipIdx);
+          }
+          ch.activeClipIdx = activeClipIdx;
+          mutationObservers.startChannelClip(idx, ch.activeClipIdx);
+          mutationObservers.setChannelVolume(idx, ch.volume);
+          return ch;
+        });
+        draftState.isPlaying = true;
       });
+      // immer.produce() preserves the object un-modified parts
+
       cache.writeQuery({
         query: WRITE_DATA,
-        data: { channels: newChannels, isPlaying: true },
+        data: newData,
       });
       return null;
     },
@@ -142,18 +145,22 @@ const getResolvers = (mutationObservers) => ({
       const existingData = cache.readQuery({
         query: GET_DATA,
       });
-      // Stop the active clip on the channelIdx passed in this method
-      mutationObservers.stopChannelClip(channelIdx, existingData.channels[channelIdx].activeClipIdx);
-      const newChannels = existingData.channels.map((ch, idx) => {
-        const newChannel = { ...ch };
-        if (idx === channelIdx) {
-          newChannel.activeClipIdx = -1;
-        }
-        return newChannel;
+
+      const newData = produce(existingData, (draftState) => {
+        draftState.channels.map((ch, idx) => {
+          if (idx === channelIdx) {
+            // Stop the active clip on the channel
+            mutationObservers.stopChannelClip(idx, ch.activeClipIdx);
+            ch.activeClipIdx = -1;
+          }
+          return ch;
+        });
       });
+      // immer.produce() preserves the object un-modified parts
+
       cache.writeQuery({
         query: WRITE_DATA,
-        data: { channels: newChannels },
+        data: newData,
       });
       return null;
     },
@@ -162,25 +169,24 @@ const getResolvers = (mutationObservers) => ({
       const existingData = cache.readQuery({
         query: GET_DATA,
       });
-      let volume;
-      const newChannels = existingData.channels.map((ch, idx) => {
-        const newChannel = {
-          ...ch,
-        };
-        if (idx === channelIdx) {
-          newChannel.activeClipIdx = clipId;
-          // play the new clip
-          volume = ch.volume;
-        }
-        return newChannel;
+
+      const newData = produce(existingData, (draftState) => {
+        draftState.channels.map((ch, idx) => {
+          if (idx === channelIdx) {
+            ch.activeClipIdx = clipId;
+            // play the new clip
+            mutationObservers.startChannelClip(idx, ch.activeClipIdx);
+            mutationObservers.setChannelVolume(idx, ch.volume);
+          }
+          return ch;
+        });
       });
+      // immer.produce() preserves the object un-modified parts
+
       cache.writeQuery({
         query: WRITE_DATA,
-        data: { channels: newChannels },
+        data: newData,
       });
-      // Start the active clip on the channelIdx passed in this method
-      mutationObservers.startChannelClip(channelIdx, clipId);
-      mutationObservers.setChannelVolume(channelIdx, volume);
       return null;
     },
 
@@ -190,21 +196,22 @@ const getResolvers = (mutationObservers) => ({
       });
 
       const newData = produce(existingData, (draftState) => {
-        draftState.channels.map((ch) => {
-          if (ch.idx === channelIdx) {
+        draftState.channels.map((ch, idx) => {
+          if (idx === channelIdx) {
             ch.volume = volume;
             // set channel volume
+            mutationObservers.setChannelVolume(idx, volume);
           }
           return ch;
         });
       });
       // immer.produce() preserves the object un-modified parts
+
       cache.writeQuery({
         query: WRITE_DATA,
         data: newData,
       });
 
-      mutationObservers.setChannelVolume(channelIdx, volume);
       return null;
     },
   },
