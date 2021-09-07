@@ -273,17 +273,20 @@ const onChannelEvent = (event, params) => {
   }
 };
 
+let globalLogNotes = false;
 const onPlayerEvent = (params) => {
   const { note, duration, time, counter, channel } = params;
-  console.log(
-    'Player(%o chIdx=%o note=%o dur=%o delay=%o, counter=%o)',
-    channel?.name,
-    channel?.idx,
-    note,
-    duration,
-    time,
-    counter
-  );
+  if (globalLogNotes) {
+    console.log(
+      'Player(%o chIdx=%o note=%o dur=%o delay=%o, counter=%o)',
+      channel?.name,
+      channel?.idx,
+      note,
+      duration,
+      time,
+      counter
+    );
+  }
 };
 
 const setCurrentFile = (state) => {
@@ -437,6 +440,7 @@ function App() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [showModal, setShowModal] = useState({ show: false, clip: {} });
+  const [logNotes, setLogNotes] = useState(globalLogNotes);
 
   // Experiment: Control scribbletune here instead of in resolvers.js
   useScribbletuneIsPlaying(client);
@@ -445,6 +449,10 @@ function App() {
   const onSidebarOpen = () => setShowSidebar(true);
   const handleShowGearsChangeEvent = () => {
     setShowGears(!showGears);
+  };
+  const handleLogNotesChangeEvent = () => {
+    setLogNotes(!logNotes);
+    globalLogNotes = !logNotes;
   };
   const handleBpmValueChangeEvent = (value) => {
     setTransportTempo({ variables: { tempoBpm: +value } });
@@ -645,6 +653,12 @@ function App() {
                           id="custom-switch"
                           label="⚙"
                           checked={showGears}
+                        />
+                        <Form.Switch
+                          onChange={handleLogNotesChangeEvent}
+                          id="custom-switch"
+                          label="log"
+                          checked={logNotes}
                         />
                       </Form>
                     </Navbar.Text>
