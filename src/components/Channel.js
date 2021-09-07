@@ -24,7 +24,7 @@ import ChannelState from './ChannelState';
 // }
 
 function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playClip }) {
-  // console.log('REDRAW: Channel %o', channel);
+  // console.log('REDRAW: Channel %s volume=%s %o', channel.idx, channel.volume, channel);
   // useScribbletuneGetVolume(channel.idx); // Using volume here to set scribbletune channel volume is possiblem but this approach adds 10ms latency vs. observer in resolvers.js
 
   // Pattern: "avoid binding arrow functions in render"
@@ -77,4 +77,7 @@ function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playCl
 //   showGears: PropTypes.bool.isRequired,
 // };
 
-export default Channel;
+export default React.memo(Channel);
+
+// const channelPropsEqual = (prevProps, nextProps) => {}; // Could fine-tune which props change requires rerender
+// export default React.memo(Channel, channelPropsEqual);

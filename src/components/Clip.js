@@ -9,7 +9,8 @@ import { ButtonGroup, Button } from 'react-bootstrap';
  * which uses sub-components (downside: prop drilling)
  * and useCallback() hook to memoize event handlers.
  * @see https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md
- // TODO: Use shouldComponentUpdate
+ // TODO: Use React.memo()
+ // TODO: @see https://reactjs.org/docs/hooks-faq.html#how-to-avoid-passing-callbacks-down revisit useCallback()
  */
 
 // Sub-Component
