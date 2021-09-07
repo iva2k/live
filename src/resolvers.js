@@ -1,3 +1,5 @@
+import produce from 'immer';
+
 // v3.3.0 import { Session } from 'scribbletune';
 import { GET_DATA, WRITE_DATA } from './gql';
 
@@ -91,6 +93,7 @@ const getResolvers = (mutationObservers) => ({
       if (!existingData.isPlaying && isPlaying) {
         // console.log('mutationResolverStartStopTrack(START) @%o', Tone.now());
         mutationObservers.startTransport();
+        mutationObservers.setTransportTempo(existingData.tempoBpm);
       }
 
       // If "Stop" is requested then start it only if not already started
@@ -117,6 +120,7 @@ const getResolvers = (mutationObservers) => ({
       });
       if (!existingData.isPlaying) {
         mutationObservers.startTransport();
+        mutationObservers.setTransportTempo(existingData.tempoBpm);
       }
 
       const newChannels = existingData.channels.map((ch, idx) => {
