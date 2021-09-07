@@ -2,6 +2,27 @@
 // https://github.com/djipco/webmidi
 import WebMidi from 'webmidi';
 
+let WebMidiEnabled;
+const WebMidiEnable = () => {
+  if (!WebMidiEnabled) {
+    WebMidiEnabled = new Promise((resolve, reject) => {
+      if (WebMidi.enabled) {
+        resolve();
+      } else {
+        WebMidi.enable(function wmStartResult(err) {
+          if (err) {
+            console.error('Error %o when enabling WebMidi.', err);
+            reject(err);
+            return;
+          }
+          resolve();
+        });
+      }
+    });
+  }
+  return WebMidiEnabled;
+};
+
 const PlayOnWebMidi = (options) => {
   // options:
   //   channel: Midi channel number 0-15, 'all' or number[]
@@ -21,30 +42,32 @@ const PlayOnWebMidi = (options) => {
         _ch = options.channel;
       }
       return new Promise((resolve, reject) => {
-        WebMidi.enable(function wmStartResult(err) {
-          if (err) {
+        WebMidiEnable()
+          .then(() => {
+            console.log('WebMidi inputs: %o', WebMidi.inputs);
+            console.log('WebMidi outputs: %o', WebMidi.outputs);
+            const output = 0;
+            _instrument = WebMidi.outputs[output];
+            if (!_instrument) {
+              reject(new Error(`WebMidi output ${output} not found`));
+              return;
+            }
+            if (options.name && !options.program) {
+              options.program = 0; // TODO: Implement
+            }
+            if (options.program) {
+              _program = options.program;
+              _instrument.sendProgramChange(_program, _ch, {});
+            }
+            resolve();
+            // eslint-disable-next-line no-useless-return
+            return;
+          })
+          .catch((err) => {
             console.error('Error %o when enabling WebMidi.', err);
             _instrument = false;
             reject(err);
-            return;
-          }
-          console.log('WebMidi inputs: %o', WebMidi.inputs);
-          console.log('WebMidi outputs: %o', WebMidi.outputs);
-          const output = 0;
-          _instrument = WebMidi.outputs[output];
-          if (!_instrument) {
-            reject(new Error(`WebMidi output ${output} not found`));
-            return;
-          }
-          if (options.name && !options.program) {
-            options.program = 0; // TODO: Implement
-          }
-          if (options.program) {
-            _program = options.program;
-            _instrument.sendProgramChange(_program, _ch, {});
-          }
-          resolve();
-        });
+          });
       });
     },
     stop: () => {
