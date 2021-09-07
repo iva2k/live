@@ -54,6 +54,7 @@
   }
   type Query {
     isPlaying: Boolean
+    tempoBpm: Float
     #channels: [Channel]
     channels(idx: Int): Channel
   }

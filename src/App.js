@@ -32,6 +32,7 @@ import {
   PLAY_CLIP,
   PLAY_ROW,
   START_STOP_TRACK,
+  SET_TRANSPORT_TEMPO,
 } from './gql';
 import introspectionResult from './schema-introspection.json';
 
@@ -120,6 +121,10 @@ const mutationObservers = {
 
   stopChannelClip: (channelIdx, clipIdx) => {
     currentFileTrackSession?.channels[channelIdx]?.stopClip(clipIdx);
+  },
+
+  setTransportTempo: (bpmValue) => {
+    currentFileTrackSession?.setTransportTempo(bpmValue);
   },
 
   startTransport: () => {
@@ -379,13 +384,13 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
     return ch;
   });
   const session = new Session(channels);
-  Tone.Transport.bpm.value = 138; // TODO: Implement correctly, make settable by UI in runtime.
 
   cache.writeQuery({
     query: WRITE_DATA,
     data: {
       ...track,
       isPlaying: false,
+      tempoBpm: 138, // TODO: Set from track file
       // isConnected: true, // Example monitoring network connection
     },
   });
@@ -425,14 +430,13 @@ function App() {
   const [playClip] = useMutation(PLAY_CLIP, { client });
   const [playRow] = useMutation(PLAY_ROW, { client });
   const [startStopTrack] = useMutation(START_STOP_TRACK, { client });
+  const [setTransportTempo] = useMutation(SET_TRANSPORT_TEMPO, { client });
 
   // Some local state variables (not using context or Apollo)
   const [currentFileIsDirty, setCurrentFileIsDirty] = useState(currentFileState.isDirty);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGears, setShowGears] = useState(false);
   const [showModal, setShowModal] = useState({ show: false, clip: {} });
-  const [bpmValue, setBpmValue] = useState(120.0);
-  // TODO: connect bpm to scribbletune
 
   // Experiment: Control scribbletune here instead of in resolvers.js
   useScribbletuneIsPlaying(client);
@@ -443,7 +447,7 @@ function App() {
     setShowGears(!showGears);
   };
   const handleBpmValueChangeEvent = (value) => {
-    setBpmValue(+value || bpmValue); // Primitive validation
+    setTransportTempo({ variables: { tempoBpm: +value } });
   };
 
   const loadScript = (urlOrFilePath, fileName, sectionName, onLoad) => {
@@ -562,7 +566,7 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <Query query={GET_DATA}>
-        {({ data: { channels, isPlaying } }) => {
+        {({ data: { channels, isPlaying, tempoBpm } }) => {
           channelsCnt = channels.length;
           clipsCnt = channels.reduce(
             (acc, ch) => (acc === undefined || acc < ch.clips.length ? ch.clips.length : acc),
@@ -690,7 +694,7 @@ function App() {
                       <Navbar.Text className="field-bpm">
                         <Form>
                           <NumberWithSpinners
-                            value={bpmValue}
+                            value={tempoBpm}
                             setValue={handleBpmValueChangeEvent}
                             units="bpm"
                             controlId="bpm"

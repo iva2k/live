@@ -28,6 +28,7 @@ const getResolvers = (mutationObservers) => ({
   },
 
   Mutation: {
+    // TODO: Refactor to use cache.modify() for faster updates (since @apollo/client@3)
     // // Example monitoring network connection
     // updateNetworkStatus: (_, { isConnected }, { cache }) => {
     //   cache.writeData({ data: { isConnected } });
@@ -41,6 +42,34 @@ const getResolvers = (mutationObservers) => ({
      * see https://github.com/apollographql/apollo-client/issues/7072#issuecomment-857214561
      * Conclusion: Do not migrate from local resolvers. Revisit if ever needed.
      */
+    mutationResolverSetTempo: (_root, { tempoBpm }, { cache }) => {
+      const existingData = cache.readQuery({
+        query: GET_DATA,
+      });
+
+      const data = {
+        ...existingData,
+        tempoBpm: +tempoBpm,
+      };
+
+      // console.log(
+      //   'mutationResolverStartStopTrack(%o) @%o existingData.isPlaying=%o',
+      //   isPlaying,
+      //   Tone.now(),
+      //   existingData.isPlaying
+      // );
+
+      // // If "Start" is requested then start it only if not already started
+      mutationObservers.setTransportTempo(tempoBpm);
+
+      cache.writeQuery({
+        query: WRITE_DATA,
+        data,
+        // optimisticResponse: { tempoBpm, __typename: 'Track' }, // This does not seem to make any difference. // The intent is to have Apollo push changes to observers right away. Should have effect when there's a network connection (if ever)
+      });
+      return null;
+    },
+
     mutationResolverStartStopTrack: (_root, { isPlaying }, { cache }) => {
       const existingData = cache.readQuery({
         query: GET_DATA,
@@ -77,9 +106,8 @@ const getResolvers = (mutationObservers) => ({
       cache.writeQuery({
         query: WRITE_DATA,
         data,
-        optimisticResponse: { isPlaying, __typename: 'Track' }, // This does not seem to make any difference. // The intent is to have Apollo push changes to observers right away. Should have effect when there's a network connection (if ever)
+        // optimisticResponse: { isPlaying, __typename: 'Track' }, // This does not seem to make any difference. // The intent is to have Apollo push changes to observers right away. Should have effect when there's a network connection (if ever)
       });
-      // TODO: use cache.modify() for faster updates (since @apollo/client@3)
       return null;
     },
 

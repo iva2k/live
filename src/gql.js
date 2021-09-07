@@ -24,6 +24,7 @@ export const GET_DATA = gql`
       }
     }
     isPlaying @client
+    tempoBpm @client
   }
 `;
 
@@ -39,6 +40,7 @@ export const WRITE_DATA = gql`
   query queryWriteData {
     channels @client
     isPlaying @client
+    tempoBpm @client
   }
 `;
 
@@ -57,6 +59,12 @@ export const STOP_CLIP = gql`
 export const PLAY_CLIP = gql`
   mutation playClip($channelIdx: Int!, $clipId: Int!) {
     playClip(channelIdx: $channelIdx, clipId: $clipId) @client
+  }
+`;
+
+export const SET_TRANSPORT_TEMPO = gql`
+  mutation setTransportTempo($tempoBpm: Float!) {
+    mutationResolverSetTempo(tempoBpm: $tempoBpm) @client
   }
 `;
 
