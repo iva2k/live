@@ -188,17 +188,20 @@ const getResolvers = (mutationObservers) => ({
       const existingData = cache.readQuery({
         query: GET_DATA,
       });
-      const newChannels = existingData.channels.map((ch) => {
-        const newChannel = { ...ch };
-        if (ch.idx === channelIdx) {
-          newChannel.volume = volume;
-          // set channel volume
-        }
-        return newChannel;
+
+      const newData = produce(existingData, (draftState) => {
+        draftState.channels.map((ch) => {
+          if (ch.idx === channelIdx) {
+            ch.volume = volume;
+            // set channel volume
+          }
+          return ch;
+        });
       });
+      // immer.produce() preserves the object un-modified parts
       cache.writeQuery({
         query: WRITE_DATA,
-        data: { channels: newChannels },
+        data: newData,
       });
 
       mutationObservers.setChannelVolume(channelIdx, volume);
