@@ -47,7 +47,7 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+## React Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
@@ -80,6 +80,16 @@ This section has moved here: <https://facebook.github.io/create-react-app/docs/t
 ## Project Structure
 
 See <https://medium.com/hackernoon/the-100-correct-way-to-structure-a-react-app-or-why-theres-no-such-thing-3ede534ef1ed>
+
+## Performance
+
+Due to the app sensitivity to latency, we strive to tighten the JS event loop.
+Any unnecessary re-renders are very undesirable, even if delay is very little.
+It explains the choice of Pattern: "avoid binding arrow functions in render"
+which uses sub-components (downside: prop drilling)
+and useCallback() hook to memoize event handlers.
+
+@see <https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md>
 
 ## External Goodies
 

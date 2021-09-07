@@ -53,7 +53,7 @@ import PlayOnWebMidi from './PlayOnWebMidi';
 // import exampleTrack from './tracks/init';
 // import exampleTrack from './tracks/half';
 import exampleTrackData from './tracks/final';
-// import * as trackLoadable from './tracks/loadable-final'; // TODO: Use loadable tracks
+// import * as trackLoadable from './tracks/loadable-final'; // TODO: Open loadable track on open. Add menu to open examples.
 
 const exampleTrackName = 'final';
 const exampleTrackText = ''; // TODO: Load example track text
@@ -71,11 +71,19 @@ window.TrackLoadMethods = {
 };
 const trackServiceProviders = {
   // Providers for the loadable track file functions
-  arp, // from 'scribbletune/browser'
-  // ? chords, // from 'scribbletune/browser'
-  scale, // from 'scribbletune/browser'
-  samplers, // from './sounds'
-  getToneMonoSynth, // from './sounds'
+  scribbletune: {
+    // from 'scribbletune/browser'
+
+    arp,
+    // ? chords, // from 'scribbletune/browser'
+    scale, // from 'scribbletune/browser'
+  },
+  sounds: {
+    // from './sounds'
+
+    samplers,
+    getToneMonoSynth,
+  },
   PlayOnJZZ, // from './PlayOnJZZ'
   PlayOnSoundfontPlayer, // from './PlayOnSoundfontPlayer'
   PlayOnWebMidi, // from './PlayOnWebMidi'
@@ -334,6 +342,9 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
     }),
   };
 
+  // if (track.leadSheet) {}
+  track.tempoBpm = track.leadSheet?.tempoBpm || track.tempoBpm || 120;
+
   const channels = track.channels.map((ch) => {
     let countClipStrClipsUsed = 0;
     let countPatternClipsUsed = 0;
@@ -388,12 +399,20 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
   });
   const session = new Session(channels);
 
+  // Prune all props not in allowedTrackProps
+  const allowedTrackProps = ['channels', 'isPlaying', 'tempoBpm', 'leadSheet']; // TODO: Implement extracting of all prop names from GQL schema.
+  Object.getOwnPropertyNames(track)
+    .filter((name) => !allowedTrackProps.includes(name))
+    .forEach((name) => {
+      track[name] = undefined;
+      console.log(`Unknown property "${name}" in file "${fileName}" track data.`);
+    });
+
   cache.writeQuery({
     query: WRITE_DATA,
     data: {
       ...track,
       isPlaying: false,
-      tempoBpm: 138, // TODO: Set from track file
       // isConnected: true, // Example monitoring network connection
     },
   });

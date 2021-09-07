@@ -1,6 +1,6 @@
 # Action Plan
 
-Note: Using "to-do" with hypen in the free text to differentiate from non-hypen version that is reserved solely for search tools (like VSCode TO-DO Tree) that compile actionable lists.
+Note: Using "to-do" with hypen in the free text to differentiate from non-hypen version that is reserved solely for search tools (like VSCode TO-DO Tree extension) that compile actionable lists.
 
 ## TO-DOs
 
@@ -10,36 +10,41 @@ It is also a thinking-out-loud place, to capture ideas for future features.
 
 ### General
 
-* TODO Theme changer, better framework (with useful components like number input with spinner), see promising <https://www.primefaces.org/primereact/showcase/#/inputnumber>
+1. TODO Host App on Netlify - need to use github branch in package.json depenencies
+1. TODO Host Storybook on Netlify
+1. TODO Theme changer, better framework (with useful components like number input with spinner), see promising <https://www.primefaces.org/primereact/showcase/#/inputnumber>
 
 ### Baseline
 
 (see duplicaes in the code)
 
-* TODO BPM control
-* TODO Channel mute
-* TODO Master volume + mute
-* TODO Metronom
-* TODO Clip names
-* TODO Clip colors
-* TODO Clip 'ditto', drag'n'drop
-* TODO Track record, rewind, replay, export to file (Tone.Transport keeps recording of events, maybe on notes level, need something like clip-level?)
-* TODO Clip record (from MIDI in?) -> parse into primitives (notes, pattern)
+1. TODO Performance improvements, remove unnecessary renders and updates,
+ @see <https://reactjs.org/docs/hooks-faq.html#how-to-avoid-passing-callbacks-down> revisit useCallback()
+
+1. TODO Organize components: separate toolbar, left drawer.
+1. TODO Channel mute
+1. TODO Master volume + mute
+1. TODO Metronome
+1. TODO Clip names
+1. TODO Clip colors
+1. TODO Clip 'ditto', drag'n'drop
+1. TODO Track record, rewind, replay, export to file (Tone.Transport keeps recording of events, maybe on notes level, need something like clip-level?)
+1. TODO Clip record (from MIDI in?) -> parse into primitives (notes, pattern)
 
 ### Roadmap to the Editor
 
 1. TODO Parse raw code of loadable track file, and annotate track data, e.g. `pattern` contains result, `patternGen` would contain code snipet that created that pattern. Same for notes, chords, etc.
-2. TODO Ability to 'apply' or 're-generate', i.e. run all generators to re-calculate pattern, notes, etc.
-3. TODO Reverse generator? E.g. take notes or chords sequence and map back to the scale of the key signature. Given scale 'C major', chords 'C G Am F' -> produce code `notes = notes(chords(keySignature, 'I V IV vi'))` or such.
-4. TODO Continue impoving Editor.js toward a functional level. Implementation should use `xxxGen` when present.
+1. TODO Ability to 'apply' or 're-generate', i.e. run all generators to re-calculate pattern, notes, etc.
+1. TODO Reverse generator? E.g. take notes or chords sequence and map back to the scale of the key signature. Given scale 'C major', chords 'C G Am F' -> produce code `notes = notes(chords(keySignature, 'I V IV vi'))` or such.
+1. TODO Continue impoving ClipEditor.js toward a functional level. Implementation should use `xxxGen` when present.
 
 ### Roadmap to the TTM - Lead Sheet
 
 1. TODO Add lead sheet 'open file'/'save file'/'edit file'
-2. TODO Add lead sheet parser (text -> data)
-3. TODO Add lead sheet exporter (data -> text)
-4. TODO Add lead sheet data structure to the track loader
-5. TODO Examples of track using lead sheet
+1. TODO Add lead sheet parser (text -> data)
+1. TODO Add lead sheet exporter (data -> text)
+1. TODO Add lead sheet data structure to the track loader
+1. TODO Examples of track using lead sheet
 
 ### Roadmap to the TTM - Other
 
