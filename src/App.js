@@ -49,14 +49,8 @@ import PlayOnJZZ from './PlayOnJZZ';
 import PlayOnSoundfontPlayer from './PlayOnSoundfontPlayer';
 import PlayOnWebMidi from './PlayOnWebMidi';
 
-// import exampleTrack from './tracks/dummy';
-// import exampleTrack from './tracks/init';
-// import exampleTrack from './tracks/half';
-import exampleTrackData from './tracks/final';
-// import * as trackLoadable from './tracks/loadable-final'; // TODO: Open loadable track on open. Add menu to open examples.
-
-const exampleTrackName = 'final';
-const exampleTrackText = ''; // TODO: Load example track text
+// Gather loadable tracks on open.
+import allTrackFiles from './tracks';
 
 const appVersion = 'v0.0.1'; // TODO: extract from package.json (using Webpack plugins?)
 const appRelease = 'build-2021-0824';
@@ -426,7 +420,36 @@ const openTrack = (file, fileName, fileText, fileData, setCurrentFileFnc, cache)
   currentFileTrackSession = session;
 };
 
-openTrack(null, exampleTrackName, exampleTrackText, exampleTrackData, setCurrentFile, stateCache);
+const loadData = (file, name, data, text, setCurrentFileFnc) => {
+  if (!data || !data.getTrack) {
+    // console.log('Failed loading file "%o", no valid data=%o', fileName, fileData);
+    toast(
+      'error',
+      'Error',
+      `Failed loading file "${name}"`,
+      `No valid track. File format should use window.TrackLoadMethods to install getTrack`
+    );
+    return;
+  }
+  // 3. Execute .getTrack from the file
+  // console.log('Loaded file "%o", data=%o, executing...', fileName, fileData);
+  try {
+    data.track = data.getTrack(trackServiceProviders);
+  } catch (e) {
+    // console.log('Failed loading file "%o", execution error=%o', fileName, e);
+    toast('error', 'Error', `Failed getting data from file "${name}"`, `Error ${e.message}`);
+    return;
+  }
+  // 4. Load track data into session
+  // console.log('Executed file "%o", track=%o', fileName, fileData.track);
+  openTrack(file, name, text, data.track, setCurrentFileFnc, stateCache);
+  toast('success', 'Success', `Loaded file "${name}"`, `Track data loaded Ok.`);
+};
+
+// Load embedded example file
+// console.log('DEBUG allTrackFiles=%o', allTrackFiles);
+loadData(null, allTrackFiles[0].name, allTrackFiles[0].data, allTrackFiles[0].text, setCurrentFile);
+// TODO: Add UI menu to open any of the examples.
 
 const enableSidebar = false; // WIP
 const enableMenubar = true; // WIP
@@ -477,7 +500,7 @@ function App() {
     setTransportTempo({ variables: { tempoBpm: +value } });
   };
 
-  const loadScript = (urlOrFilePath, fileName, sectionName, onLoad) => {
+  const loadScript = (urlOrFilePath, fileName, file, sectionName, fileText, onLoad) => {
     window.TrackLoadMethods[sectionName] = undefined;
     window.TrackLoadMethods.sectionName = sectionName; // Tell the loadable script where to post its data
     const script = document.createElement('script');
@@ -485,7 +508,10 @@ function App() {
     script.type = 'application/javascript';
     script.async = true;
     script.addEventListener('load', () => {
-      onLoad(window.TrackLoadMethods[sectionName], fileName);
+      onLoad(file, fileName, window.TrackLoadMethods[sectionName], fileText, (state) => {
+        setCurrentFileIsDirty(state.isDirty);
+        setCurrentFile(state);
+      });
       document.body.removeChild(script);
     });
     document.body.appendChild(script); // Initiates script loading
@@ -502,41 +528,7 @@ function App() {
       // console.log(reader.result);
       const fileText = reader.result;
       // 2. Load the script
-      loadScript(filePath, file.name, 'track', (fileData, fileName) => {
-        if (!fileData || !fileData.getTrack) {
-          // console.log('Failed loading file "%o", no valid data=%o', fileName, fileData);
-          toast(
-            'error',
-            'Error',
-            `Failed loading file "${fileName}"`,
-            `No valid track. File format should use window.TrackLoadMethods to install getTrack`
-          );
-          return;
-        }
-        // 3. Execute .getTrack from the file
-        // console.log('Loaded file "%o", data=%o, executing...', fileName, fileData);
-        try {
-          fileData.track = fileData.getTrack(trackServiceProviders);
-        } catch (e) {
-          // console.log('Failed loading file "%o", execution error=%o', fileName, e);
-          toast('error', 'Error', `Failed getting data from file "${fileName}"`, `Error ${e.message}`);
-          return;
-        }
-        // 4. Load track data into session
-        // console.log('Executed file "%o", track=%o', fileName, fileData.track);
-        openTrack(
-          file,
-          file.name,
-          fileText,
-          fileData.track,
-          (state) => {
-            setCurrentFileIsDirty(state.isDirty);
-            setCurrentFile(state);
-          },
-          stateCache
-        );
-        toast('success', 'Success', `Loaded file "${fileName}"`, `Track data loaded Ok.`);
-      });
+      loadScript(filePath, file.name, file, 'track', fileText, loadData);
     };
     reader.onerror = () => {
       toast('error', 'Error', `Failed reading file "${file.name}"`, `Error ${reader.error}`);
