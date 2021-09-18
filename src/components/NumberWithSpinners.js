@@ -157,8 +157,18 @@ function NumberWithSpinners({
   const containerProps = { ...otherProps };
   containerProps.className = `${containerProps.className || ''} numberspinner my-0 my-auto`.trim();
 
+  /* TODO: (when needed) Allow user to choose which components to use
+   *    Here's a JSX trick to choose component in runtime by a string:
+   *    ```jsx
+   *    const Button = ({ Component = 'button', ...props }) => <Component {...props} />
+   *    <Button>A Button</Button> // Renders a button element
+   *    <Button Component="a">A Link</Button> // Renders an anchor element
+   *    ```
+   *    Yes, you can use a string as a component in JSX - just make sure that the string component name starts with a capital letter.
+   */
+
   return (
-    <>
+    <React.Fragment key={controlId}>
       <Form.Group as={Row} className="numberspinner my-0 my-auto" controlId={controlId}>
         {children}
         <Col md={3} className="mx-0 my-auto px-0 py-0">
@@ -209,7 +219,7 @@ function NumberWithSpinners({
           {units && <Form.Label className="mx-0 my-auto">{units}</Form.Label>}
         </Col>
       </Form.Group>
-    </>
+    </React.Fragment>
   );
 }
 

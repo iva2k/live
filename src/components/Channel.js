@@ -42,7 +42,7 @@ function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playCl
   );
 
   return (
-    <>
+    <React.Fragment key={channel.idx}>
       <Col>
         {channel.clips &&
           channel.clips.map((c, idx) => {
@@ -68,7 +68,7 @@ function Channel({ channel, showGears, setShowModal, setVolume, stopClip, playCl
         <h6 className="text-center">{channel.name}</h6>
         <ChannelState state={channel.state} error={channel.error} />
       </Col>
-    </>
+    </React.Fragment>
   );
 }
 
