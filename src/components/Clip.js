@@ -1,18 +1,6 @@
 import React, { useCallback } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 
-/**
- * Implementation Notes
- * Due to the app sensitivity to latency, we strive to tighten the JS event loop.
- * Any unnecessary re-renders are very undesirable, even if delay is very little.
- * It explains the choice of Pattern: "avoid binding arrow functions in render"
- * which uses sub-components (downside: prop drilling)
- * and useCallback() hook to memoize event handlers.
- * @see https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md
- // TODO: Use React.memo()
- // TODO: @see https://reactjs.org/docs/hooks-faq.html#how-to-avoid-passing-callbacks-down revisit useCallback()
- */
-
 // Sub-Component
 const ClipDisabledButton = ({ onContextMenu }) => (
   <Button variant="outline-secondary" onContextMenu={onContextMenu}>
@@ -85,7 +73,7 @@ const GearsButton = ({ clip, setShowModal }) => {
 };
 
 function Clip({ clip, showGears, stopClip, playClip, setShowModal }) {
-  // console.log('REDRAW: Channel %o Clip %o clip.pattern=%o', clip.channelIdx, clip.idx, clip.pattern);
+  console.log('REDRAW: Channel %s Clip %s clip.pattern=%o', clip.channelIdx, clip.idx, clip.pattern);
 
   // useEffect(() => {
   //   const clipCode = document.getElementById('clipCode');
@@ -122,4 +110,4 @@ function Clip({ clip, showGears, stopClip, playClip, setShowModal }) {
   );
 }
 
-export default Clip;
+export default React.memo(Clip);
