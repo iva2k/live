@@ -2,7 +2,7 @@
   "recommendations": [
     "burkeholland.simple-react-snippets",
     "jawandarajbir.react-vscode-extension-pack",
-    "coenraads.bracket-pair-colorizer-2",
+    // "coenraads.bracket-pair-colorizer-2",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "formulahendry.auto-close-tag",
@@ -24,6 +24,10 @@
     "vscode-icons-team.vscode-icons",
     "syler.sass-indented",
     "apollographql.vscode-apollo",
-    "kumar-harsh.graphql-for-vscode"
+    "kumar-harsh.graphql-for-vscode",
+    "pulkitgangwar.next-js-react-storybook-commands",
+    "joshbolduc.story-explorer",
+    "brendon1555.react-component-generator",
+    "mochisann.create-react-component-with-storybook-and-testfile"
   ]
 }

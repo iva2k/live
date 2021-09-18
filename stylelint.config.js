@@ -2,7 +2,7 @@ module.exports = {
   extends: [
     'stylelint-config-sass-guidelines',
     // 'stylelint-config-standard',
-    'stylelint-config-prettier',
+    'stylelint-config-prettier', // Must be last
   ],
   ignoreFiles: [
     './coverage/**/*',
